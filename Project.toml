@@ -3,6 +3,9 @@ uuid = "b58e7a8d-b3e8-4a5d-bea9-e6440cab77fd"
 authors = ["René Verbeek"]
 version = "0.1.0"
 
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+
 [compat]
 julia = "1.4.1"
 

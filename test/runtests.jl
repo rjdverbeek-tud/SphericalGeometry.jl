@@ -2,5 +2,9 @@ using SphericalGeometry
 using Test
 
 @testset "SphericalGeometry.jl" begin
-    # Write your tests here.
+    tests = ["types"]
+
+    for t in tests
+        include("$(t).jl")
+    end
 end
