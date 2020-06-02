@@ -1,18 +1,47 @@
 @testset "distances.jl" begin
-    p1 = rad2deg(Point(0.5, 1.0))
-    p2 = rad2deg(Point(1.0, 0.5))
-    p3 = rad2deg(Point(0.6, 1.0))
+    p1 = Point(30.0, 100.0)
+    p2 = Point(50.0, 210.0)
+    p3 = Point(40.0, 180.0)
 
-    rs = Line(p1,p2)
+    ls = LineSection(p1,p2)
+    lss = LineSections([p1, p2, p3])
 
-    @test distance(angular_distance(p1, p2)) ≈ 3888e3 atol = 1e3
-    @test distance(angular_distance(rs)) ≈ 3888e3 atol = 1e3
+    @test distance(angular_distance(p1, p2)) ≈ 8773e3 atol = 1e3
+    @test distance(angular_distance(ls)) ≈ 8773e3 atol = 1e3
     @test distance(angular_distance(p1, p1)) == 0.0
+    @test distance(angular_distance(lss)) ≈ 8773e3+2585e3 atol = 1e3
 
-    p1b = Point(30.0, 100.0)
-    p2b = Point(50.0, 210.0)
-    rsb = Line(p1b, p2b)
+    # Example http://edwilliams.org/avform.htm Cross track error
+    pLAX = Point(33.95,-118.4)
+    pJFK = Point(40.63333, -73.78333)
+    pD = Point(34.5, -116.5)
 
-    @test distance(angular_distance(p1b, p2b)) ≈ 8773000.0 atol = 1000.0
-    @test angular_distance(p1b, p2b) ≈ 78.8974 atol = 0.1
+    dist_LAX2D = angular_distance(pLAX, pD)
+    @test dist_LAX2D ≈ rad2deg(0.02905) atol = 0.1
+    bearing_LAX2D = bearing(pLAX, pD)
+    @test bearing_LAX2D ≈ 70.17 atol = 0.01
+    bearing_LAX2JFK = bearing(pLAX, pJFK)
+
+    @test angular_distance(dist_LAX2D, bearing_LAX2D, bearing_LAX2JFK) ≈
+    rad2deg(0.00216747) atol = 0.0001
+    @test angular_distance(pD, pLAX, bearing_LAX2JFK) ≈
+    rad2deg(0.00216747) atol = 0.0001
+    @test angular_distance(pD, Line(pLAX, bearing_LAX2JFK)) ≈
+    rad2deg(0.00216747) atol = 0.0001
+
+    @test along_line_angular_distance(rad2deg(0.02905), rad2deg(0.00216747)) ≈
+    rad2deg(0.0289691) atol = 0.00001
+    @test along_line_angular_distance(pD, Line(pLAX, bearing_LAX2JFK)) ≈
+    rad2deg(0.0289691) atol = 0.00001
+
+    px1 = Point(-10.0, -20.0)
+    px2 = Point(10.0, -20.0)
+    px3a = Point(0.0, -10.0)
+    @test angular_distance(px3a, px1, px2) ≈ 10.0 atol = 0.1
+    px3b = Point(15.0, -20.0)
+    @test angular_distance(px3b, px1, px2) ≈ 5.0 atol = 0.1
+    px3c = Point(-17.0, -20.0)
+    @test angular_distance(px3c, px1, px2) ≈ 7.0 atol = 0.1
+    @test angular_distance(px3c, LineSection(px1, px2)) ≈ 7.0 atol = 0.1
+
 end
