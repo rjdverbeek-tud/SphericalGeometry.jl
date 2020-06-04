@@ -1,3 +1,5 @@
+const tolerance_deg = 0.00001
+
 """
     normalize(value::Float64[, lower::Float64 = 0.0, upper::Float64 = 360.0])
 

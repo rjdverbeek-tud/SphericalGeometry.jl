@@ -21,8 +21,8 @@ end
 Return the initial `bearing` [deg], measured clockwise from the north direction,
 of the line on a unit sphere.
 """
-bearing(linesection::LineSection) =
-bearing(linesection.point₁, linesection.point₂)
+bearing(arc::Arc) =
+bearing(arc.point₁, arc.point₂)
 
 """
     final_bearing(point₁::Point, point₂::Point)
@@ -42,5 +42,5 @@ end
 
 Return the `final_bearing` [deg] of the line on a unit sphere.
 """
-final_bearing(linesection::LineSection) =
-final_bearing(linesection.point₁, linesection.point₂)
+final_bearing(arc::Arc) =
+final_bearing(arc.point₁, arc.point₂)

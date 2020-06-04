@@ -1,4 +1,5 @@
-export midpoint, intermediate_point, destination_point, intersection_point
+export midpoint, intermediate_point, destination_point, intersection_point,
+intersection_points
 
 """
     midpoint(point₁::Point, point₂::Point)
@@ -18,21 +19,21 @@ function midpoint(point₁::Point, point₂::Point)
 end
 
 """
-    midpoint(linesection::LineSection)
+    midpoint(arc::Arc)
 
-Return the half-way point `midpoint` [deg] on the great circle `linesection`
+Return the half-way point `midpoint` [deg] on the great circle `arc`
 [deg] on a unit sphere.
 """
-midpoint(linesection::LineSection) = midpoint(linesection.point₁,
-linesection.point₂)
+midpoint(arc::Arc) = midpoint(arc.point₁,
+arc.point₂)
 
 """
-    midpoint(linesections::LineSections)
+    midpoint(arcs::Arcs)
 
-Return the half-way point `midpoint` [deg] on the great circle `linesections`
+Return the half-way point `midpoint` [deg] on the great circle `arcs`
 [deg] on a unit sphere.
 """
-midpoint(linesections::LineSections) = intermediate_point(linesections, 0.5)
+midpoint(arcs::Arcs) = intermediate_point(arcs, 0.5)
 
 """
     intermediate_point(point₁::Point, point₂::Point, fraction::Float64)
@@ -57,41 +58,41 @@ function intermediate_point(point₁::Point, point₂::Point, fraction::Float64)
 end
 
 """
-    intermediate_point(linesection::LineSection, fraction::Float64)
+    intermediate_point(arc::Arc, fraction::Float64)
 
 Return the `intermediate_point` [deg] at any `fraction` along the great circle
-`linesection` [deg]. The fraction along the great circle `linesection` is such
-that `fraction` = 0.0 is at the start of the `linesection` and `fraction` 1.0 is
-at the end of the `linesection`.
+`arc` [deg]. The fraction along the great circle `arc` is such
+that `fraction` = 0.0 is at the start of the `arc` and `fraction` 1.0 is
+at the end of the `arc`.
 """
-intermediate_point(linesection::LineSection, fraction::Float64) =
-intermediate_point(linesection.point₁, linesection.point₂, fraction)
+intermediate_point(arc::Arc, fraction::Float64) =
+intermediate_point(arc.point₁, arc.point₂, fraction)
 
 """
-    intermediate_point(linesections::LineSections, fraction::Float64)
+    intermediate_point(arcs::Arcs, fraction::Float64)
 
 Return the `intermediate_point` [deg] at any `fraction` along the great circle
-`linesections` [deg]. The fraction along the great circle `linesections` is such
-that `fraction` = 0.0 is at the start of the `linesections` and `fraction` 1.0 is
-at the end of the `linesections`.
+`arcs` [deg]. The fraction along the great circle `arcs` is such
+that `fraction` = 0.0 is at the start of the `arcs` and `fraction` 1.0 is
+at the end of the `arcs`.
 """
-function intermediate_point(linesections::LineSections, fraction::Float64)
-    angular_distance_ip = angular_distance(linesections) * fraction
-    p₁ = linesections.points[1]
+function intermediate_point(arcs::Arcs, fraction::Float64)
+    angular_length_ip = angular_length(arcs) * fraction
+    p₁ = arcs.points[1]
     dist = 0.0
-    if angular_distance_ip == dist
-        return linesections.points[1]
+    if angular_length_ip == dist
+        return arcs.points[1]
     end
-    for p₂ in linesections.points[2:end]
+    for p₂ in arcs.points[2:end]
         dist_p₁p₂ = angular_distance(p₁, p₂)
-        if dist + dist_p₁p₂ ≥ angular_distance_ip
-            fraction_section = (angular_distance_ip - dist) / dist_p₁p₂
+        if dist + dist_p₁p₂ ≥ angular_length_ip
+            fraction_section = (angular_length_ip - dist) / dist_p₁p₂
             return intermediate_point(p₁, p₂, fraction_section)
         end
         dist += dist_p₁p₂
         p₁ = p₂
     end
-    return linesections.points[end]
+    return arcs.points[end]
 end
 
 """
@@ -181,7 +182,6 @@ Under certain circumstances the results can be an ∞ or *ambiguous solution*.
 intersection_point(line₁::Line, line₂::Line) = intersection_point(line₁.point,
 line₂.point, line₁.bearing, line₂.bearing)
 
-#TODO Create Test for intersection_point
 """
     intersection_point(point₁::Point, point₂::Point, point₃::Point, point₄::Point)
 
@@ -197,10 +197,69 @@ function intersection_point(point₁::Point, point₂::Point, point₃::Point,
     bearing(point₃, point₄))
     if isinf(inter_pnt.ϕ)
         return inter_pnt
-    elseif distance(point₁, point₂) + tolerance_m ≥ distance(point₁, inter_pnt) &&
-        distance(point₃, point₄) + tolerance_m ≥ distance(point₃, inter_pnt)
+    elseif angular_distance(point₁, point₂) + tolerance_deg ≥ angular_distance(point₁, inter_pnt) &&
+        angular_distance(point₃, point₄) + tolerance_deg ≥ angular_distance(point₃, inter_pnt)
         return inter_pnt
     else
         return Point(NaN, NaN)
     end
 end
+
+"""
+    intersection_point(arc₁::Arc, arc₂::Arc)
+
+Return the intersection `point` [deg] of two great circle line sections.
+
+Under certain circumstances the results can be an ∞ or *ambiguous solution*.
+"""
+intersection_point(arc₁::Arc, arc₂::Arc) =
+intersection_point(arc₁.point₁, arc₁.point₂,
+arc₂.point₁, arc₂.point₂)
+
+#TODO Special cases for two lines overlapping.
+"""
+    intersection_points(arcs₁::Arcs, arcs₂::Arcs)
+
+Return the intersection points [deg] of two line sections.
+"""
+function intersection_points(arcs₁::Arcs, arcs₂::Arcs)
+    lss₁_p₁ = arcs₁.points[1]
+    inter_points = Vector{Point{Float64}}()
+    for lss₁_p₂ in arcs₁.points[2:end]
+        lss₂_p₁ = arcs₂.points[1]
+        distances_section = Vector{Float64}()
+        inter_points_section = Vector{Point{Float64}}()
+        for lss₂_p₂ in arcs₂.points[2:end]
+            intersection_pnt = intersection_point(lss₁_p₁, lss₁_p₂, lss₂_p₁, lss₂_p₂)
+            if isinf(intersection_pnt.ϕ) || isnan(intersection_pnt.ϕ)
+                #
+            else
+                append!(distances_section,
+                angular_distance(lss₁_p₁, intersection_pnt))
+                append!(inter_points_section, [intersection_pnt])
+            end
+            lss₂_p₁ = lss₂_p₂
+        end
+        lss₁_p₁ = lss₁_p₂
+        p = sortperm(distances_section)
+        append!(inter_points, inter_points_section[p])
+    end
+    return inter_points
+end
+
+"""
+    intersection_points(arcs::Arcs, polygon::Polygon)
+
+Return the intersection points [deg] of a `arcs` with a `polygon`.
+"""
+intersection_points(arcs::Arcs, polygon::Polygon) =
+intersection_points(arcs, Arcs(polygon.points))
+
+"""
+    intersection_points(polygon₁::Polygon, polygon₂::Polygon)
+
+Return the intersection points [deg] of two polygons.
+"""
+intersection_points(polygon₁::Polygon, polygon₂::Polygon) =
+intersection_points(Arcs(polygon₁.points), Arcs(polygon₂.points))
+#TODO Other variants of intersection_points.

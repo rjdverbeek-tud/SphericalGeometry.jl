@@ -1,4 +1,4 @@
-export angular_distance, distance, along_line_angular_distance
+export angular_distance, distance, along_line_angular_distance, angular_length
 
 """
     Radius Earth [m]
@@ -23,23 +23,23 @@ function angular_distance(point₁::Point, point₂::Point)
 end
 
 """
-    angular_distance(line::Line)
+    angular_length(line::Line)
 
-Return the `angular_distance` [deg] of the great circle line section on a
+Return the `angular_length` [deg] of the great circle line section on a
 unit sphere.
 """
-angular_distance(linesection::LineSection) =
-angular_distance(linesection.point₁, linesection.point₂)
+angular_length(arc::Arc) =
+angular_distance(arc.point₁, arc.point₂)
 
 """
-    angular_distance(linesections::LineSections)
+    angular_length(arcs::Arcs)
 
-Return the `angular_distance` [deg] along the linesections on a unit sphere.
+Return the `angular_length` [deg] along the arcs on a unit sphere.
 """
-function angular_distance(linesections::LineSections)
-    point₁ = linesections.points[1]
+function angular_length(arcs::Arcs)
+    point₁ = arcs.points[1]
     dist_deg = 0.0
-    for point₂ in linesections.points[2:end]
+    for point₂ in arcs.points[2:end]
         dist_deg += angular_distance(point₁, point₂)
         point₁ = point₂
     end
@@ -123,14 +123,14 @@ function angular_distance(point₃::Point, point₁::Point, point₂::Point)
 end
 
 """
-    angular_distance(point₃::Point, linesection₁₂::LineSection)
+    angular_distance(point₃::Point, arc₁₂::Arc)
 
 Return the `angular_distance` [deg] from point₃ [deg] to the closest point on a
 great circle line section starting in `point₁` [deg] and ending in `point₂` [deg].
 The great circle line section does not continue around the unit sphere.
 """
-angular_distance(point₃::Point, linesection₁₂::LineSection) =
-angular_distance(point₃, linesection₁₂.point₁, linesection₁₂.point₂)
+angular_distance(point₃::Point, arc₁₂::Arc) =
+angular_distance(point₃, arc₁₂.point₁, arc₁₂.point₂)
 
 """
     along_line_angular_distance(angular_distance₁₃::Float64,
@@ -165,4 +165,4 @@ function along_line_angular_distance(point₃::Point, line₁::Line)
 end
 
 #TODO Distance to polygon
-#TODO Distance to LineSections
+#TODO Distance to Arcs

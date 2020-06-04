@@ -3,13 +3,13 @@
     p2 = Point(50.0, 210.0)
     p3 = Point(40.0, 180.0)
 
-    ls = LineSection(p1,p2)
-    lss = LineSections([p1, p2, p3])
+    ls = Arc(p1,p2)
+    lss = Arcs([p1, p2, p3])
 
     @test distance(angular_distance(p1, p2)) ≈ 8773e3 atol = 1e3
-    @test distance(angular_distance(ls)) ≈ 8773e3 atol = 1e3
+    @test distance(angular_length(ls)) ≈ 8773e3 atol = 1e3
     @test distance(angular_distance(p1, p1)) == 0.0
-    @test distance(angular_distance(lss)) ≈ 8773e3+2585e3 atol = 1e3
+    @test distance(angular_length(lss)) ≈ 8773e3+2585e3 atol = 1e3
 
     # Example http://edwilliams.org/avform.htm Cross track error
     pLAX = Point(33.95,-118.4)
@@ -42,6 +42,6 @@
     @test angular_distance(px3b, px1, px2) ≈ 5.0 atol = 0.1
     px3c = Point(-17.0, -20.0)
     @test angular_distance(px3c, px1, px2) ≈ 7.0 atol = 0.1
-    @test angular_distance(px3c, LineSection(px1, px2)) ≈ 7.0 atol = 0.1
+    @test angular_distance(px3c, Arc(px1, px2)) ≈ 7.0 atol = 0.1
 
 end
