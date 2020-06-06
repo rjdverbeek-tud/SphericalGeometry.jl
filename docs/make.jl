@@ -1,4 +1,4 @@
-using Documenter, Navigation
+using Documenter, SphericalGeometry
 
 makedocs(
     sitename = "SphericalGeometry.jl",

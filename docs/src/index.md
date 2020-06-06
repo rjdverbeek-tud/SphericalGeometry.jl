@@ -1,4 +1,4 @@
-# Navigation.jl
+# SphericalGeometry.jl
 
 ```@autodocs
 Modules = [SphericalGeometry]
