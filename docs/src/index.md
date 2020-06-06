@@ -8,6 +8,15 @@ Private = false
 
 ## Types
 ```@docs
+Point
+MultiPoint
+Arc
+MultiArc
+Line
+Arcs
+MultiArcs
+Polygon
+MultiPolygons
 ```
 
 ## Functions
