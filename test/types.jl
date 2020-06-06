@@ -16,7 +16,7 @@
 
     l = Line(p1, 90.0)
     @test l.point.ϕ ≈ 80.0 atol = 0.1
-    @test l.bearing ≈ 90.0 atol = 0.1
+    @test l.azimuth ≈ 90.0 atol = 0.1
 
     p3 = Point(60.0, 30.0)
     lss1 = Arcs([p1, p2, p3])

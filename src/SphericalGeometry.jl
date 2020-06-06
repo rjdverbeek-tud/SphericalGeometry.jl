@@ -7,11 +7,9 @@ import Base.Math.rad2deg, Base.Math.deg2rad
 
 include("utility.jl")
 include("types.jl")
-include("bearing.jl")
+include("azimuth.jl")
 include("distances.jl")
 include("points.jl")
 end
 #TODO Area
 #TODO voronoi triangulation
-#TODO inside polygon
-#TODO add inside point to polygon struct

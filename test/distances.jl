@@ -18,9 +18,9 @@
 
     dist_LAX2D = angular_distance(pLAX, pD)
     @test dist_LAX2D ≈ rad2deg(0.02905) atol = 0.1
-    bearing_LAX2D = bearing(pLAX, pD)
+    bearing_LAX2D = azimuth(pLAX, pD)
     @test bearing_LAX2D ≈ 70.17 atol = 0.01
-    bearing_LAX2JFK = bearing(pLAX, pJFK)
+    bearing_LAX2JFK = azimuth(pLAX, pJFK)
 
     @test angular_distance(dist_LAX2D, bearing_LAX2D, bearing_LAX2JFK) ≈
     rad2deg(0.00216747) atol = 0.0001
@@ -44,4 +44,30 @@
     @test angular_distance(px3c, px1, px2) ≈ 7.0 atol = 0.1
     @test angular_distance(px3c, Arc(px1, px2)) ≈ 7.0 atol = 0.1
 
+    px4 = Point(0.0, 0.0)
+    px5 = Point(10.0, 0.0)
+    arc = Arc(px4, px5)
+    @test distance(angular_distance(Point(-5.0, 0.0), arc)) ≈ 556.0*1000 atol = 100.0
+    @test distance(angular_distance(Point(-5.0, 5.0), arc)) ≈ 785.8*1000 atol = 100.0
+    @test distance(angular_distance(Point(0.0, 5.0), arc)) ≈ 556.0*1000 atol = 100.0
+    @test distance(angular_distance(Point(5.0, 5.0), arc)) ≈ 553.9*1000 atol = 100.0
+    @test distance(angular_distance(Point(10.0, 5.0), arc)) ≈ 547.5*1000 atol = 100.0
+    @test distance(angular_distance(Point(15.0, 0.0), arc)) ≈ 556.0*1000 atol = 100.0
+    @test distance(angular_distance(Point(15.0, -5.0), arc)) ≈ 776.9*1000 atol = 100.0
+    @test distance(angular_distance(Point(10.0, -5.0), arc)) ≈ 547.5*1000 atol = 100.0
+    @test distance(angular_distance(Point(5.0, -5.0), arc)) ≈ 553.9*1000 atol = 100.0
+    @test distance(angular_distance(Point(0.0, -5.0), arc)) ≈ 556.0*1000 atol = 100.0
+    @test distance(angular_distance(Point(5.0, 0.0), arc)) ≈ 0.0*1000 atol = 100.0
+
+    @test distance(angular_distance(Point(-5.0, 0.0), px4)) ≈ 556.0*1000 atol = 100.0
+    @test distance(angular_distance(Point(-5.0, 5.0), px4)) ≈ 785.8*1000 atol = 100.0
+    @test distance(angular_distance(Point(0.0, 5.0), px4)) ≈ 556.0*1000 atol = 100.0
+    @test distance(angular_distance(Point(5.0, 5.0), arc)) ≈ 553.9*1000 atol = 100.0
+    @test distance(angular_distance(Point(10.0, 5.0), px5)) ≈ 547.5*1000 atol = 100.0
+    @test distance(angular_distance(Point(15.0, 0.0), px5)) ≈ 556.0*1000 atol = 100.0
+    @test distance(angular_distance(Point(15.0, -5.0), px5)) ≈ 776.9*1000 atol = 100.0
+    @test distance(angular_distance(Point(10.0, -5.0), px5)) ≈ 547.5*1000 atol = 100.0
+    @test distance(angular_distance(Point(5.0, -5.0), arc)) ≈ 553.9*1000 atol = 100.0
+    @test distance(angular_distance(Point(0.0, -5.0), px4)) ≈ 556.0*1000 atol = 100.0
+    @test distance(angular_distance(Point(5.0, 0.0), arc)) ≈ 0.0*1000 atol = 100.0
 end

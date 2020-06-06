@@ -27,10 +27,10 @@ struct MultiArc{T<:Float64}
     marc::Vector{Arc{T}}
 end
 
-"Line type with `point` [deg] and `bearing` [deg]"
+"Line type with `point` [deg] and `azimuth` [deg]"
 struct Line{T<:Float64}
     point::Point{T}
-    bearing::Float64
+    azimuth::Float64
 end
 
 "Arcs type with points [deg]. A minimum of two points are necessary for
@@ -51,6 +51,7 @@ struct MultiArcs{T<:Float64}
     marcs::Vector{Arcs{T}}
 end
 
+#TODO Ensure that the inside_point is not on any line crossing adjacent points of the polygon
 "Polygon type with points [deg]. A minimum of three different points are
 necessary for a polygon."
 struct Polygon{T<:Float64}

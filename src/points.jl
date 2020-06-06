@@ -1,5 +1,5 @@
 export midpoint, intermediate_point, destination_point, intersection_point,
-intersection_points
+intersection_points, isinside, isonborder, ison, isselfintersecting
 
 """
     midpoint(point₁::Point, point₂::Point)
@@ -97,19 +97,19 @@ end
 
 """
     destination_point(start_point::Point, angular_distance::Float64,
-    bearing::Float64)
+    azimuth::Float64)
 
-Given a `start_point` [deg], initial `bearing` (clockwise from North) [deg],
+Given a `start_point` [deg], initial `azimuth` (clockwise from North) [deg],
 `angular_distance` [deg] calculate the position of the `destina­tion_point`
 [deg] traversing along a great circle line.
 
 Source: www.movable-type.co.uk/scripts/latlong.html
 """
 function destination_point(start_point::Point, angular_distance::Float64,
-bearing::Float64)
+azimuth::Float64)
     ϕ₂ = asind(sind(start_point.ϕ) * cosd(angular_distance) +
-    cosd(start_point.ϕ) * sind(angular_distance) * cosd(bearing))
-    λ₂ = start_point.λ + atand(sind(bearing) * sind(angular_distance) *
+    cosd(start_point.ϕ) * sind(angular_distance) * cosd(azimuth))
+    λ₂ = start_point.λ + atand(sind(azimuth) * sind(angular_distance) *
     cosd(start_point.ϕ), cosd(angular_distance) - sind(start_point.ϕ) * sind(ϕ₂))
     return Point(ϕ₂, λ₂)
 end
@@ -117,26 +117,26 @@ end
 """
     destination_point(line::Line, angular_distance::Float64)
 
-Given a line with a start_point and bearing, calculate the `destina­tion_point`
+Given a line with a start_point and azimuth, calculate the `destina­tion_point`
 [deg] at the `angular_distance`.
 """
 destination_point(line::Line, angular_distance::Float64) =
-destination_point(line.point, angular_distance, line.bearing)
+destination_point(line.point, angular_distance, line.azimuth)
 
 """
-    intersection_point(point₁::Point, point₂::Point, bearing₁₃::Float64,
-    bearing₂₃::Float64)
+    intersection_point(point₁::Point, point₂::Point, azimuth₁₃::Float64,
+    azimuth₂₃::Float64)
 
 Return the intersection point `point₃` [deg] of two great circle lines given
-by two start points [deg] `point₁` and `point₂` [deg] and two bearings [deg]
+by two start points [deg] `point₁` and `point₂` [deg] and two azimuths [deg]
 from `point₁` to `point₃` [deg], and from `point₂` to `point₃` [deg].
 
 Under certain circumstances the results can be an ∞ or *ambiguous solution*.
 
 Source: edwilliams.org/avform.htm
 """
-function intersection_point(point₁::Point, point₂::Point, bearing₁₃::Float64,
-bearing₂₃::Float64)
+function intersection_point(point₁::Point, point₂::Point, azimuth₁₃::Float64,
+azimuth₂₃::Float64)
     Δpos = point₂ - point₁
     δ₁₂ = 2asind(√(sind(Δpos.ϕ / 2)^2 + cosd(point₁.ϕ) * cosd(point₂.ϕ) * sind(Δpos.λ/2)^2))
     if sind(δ₁₂) * cosd(point₁.ϕ) == 0.0 || sind(δ₁₂) * cosd(point₂.ϕ) == 0.0
@@ -152,8 +152,8 @@ bearing₂₃::Float64)
         θ₁₂ = 360.0 - θₐ
         θ₂₁ = θᵦ
     end
-    α₁ = (bearing₁₃ - θ₁₂ + 180.0)%(360.0) - 180.0
-    α₂ = (θ₂₁ - bearing₂₃ + 180.0)%(360.0) - 180.0
+    α₁ = (azimuth₁₃ - θ₁₂ + 180.0)%(360.0) - 180.0
+    α₂ = (θ₂₁ - azimuth₂₃ + 180.0)%(360.0) - 180.0
 
     if sind(α₁) ≈ 0.0 && sind(α₂) ≈ 0.0
         return Point(Inf, Inf)  # infinity of intersections
@@ -163,8 +163,8 @@ bearing₂₃::Float64)
     else
         α₃ = acosd(-cosd(α₁) * cosd(α₂) + sind(α₁) * sind(α₂) * cosd(δ₁₂))
         δ₁₃ = atand(sind(δ₁₂) * sind(α₁) * sind(α₂), cosd(α₂) + cosd(α₁) * cosd(α₃))
-        ϕ₃ = asind(sind(point₁.ϕ) * cosd(δ₁₃) + cosd(point₁.ϕ) * sind(δ₁₃) * cosd(bearing₁₃))
-        Δλ₁₃ = atand(sind(bearing₁₃) * sind(δ₁₃) * cosd(point₁.ϕ), cosd(δ₁₃)
+        ϕ₃ = asind(sind(point₁.ϕ) * cosd(δ₁₃) + cosd(point₁.ϕ) * sind(δ₁₃) * cosd(azimuth₁₃))
+        Δλ₁₃ = atand(sind(azimuth₁₃) * sind(δ₁₃) * cosd(point₁.ϕ), cosd(δ₁₃)
         - sind(point₁.ϕ) * sind(ϕ₃))
         λ₃ = point₁.λ + Δλ₁₃
         return Point(ϕ₃, λ₃)
@@ -180,7 +180,7 @@ and `line₂`.
 Under certain circumstances the results can be an ∞ or *ambiguous solution*.
 """
 intersection_point(line₁::Line, line₂::Line) = intersection_point(line₁.point,
-line₂.point, line₁.bearing, line₂.bearing)
+line₂.point, line₁.azimuth, line₂.azimuth)
 
 """
     intersection_point(point₁::Point, point₂::Point, point₃::Point, point₄::Point)
@@ -193,8 +193,8 @@ Under certain circumstances the results can be an ∞ or *ambiguous solution*.
 """
 function intersection_point(point₁::Point, point₂::Point, point₃::Point,
     point₄::Point)
-    inter_pnt = intersection_point(point₁, point₃, bearing(point₁, point₂),
-    bearing(point₃, point₄))
+    inter_pnt = intersection_point(point₁, point₃, azimuth(point₁, point₂),
+    azimuth(point₃, point₄))
     if isinf(inter_pnt.ϕ)
         return inter_pnt
     elseif angular_distance(point₁, point₂) + tolerance_deg ≥ angular_distance(point₁, inter_pnt) &&
@@ -255,6 +255,9 @@ Return the intersection points [deg] of a `arcs` with a `polygon`.
 intersection_points(arcs::Arcs, polygon::Polygon) =
 intersection_points(arcs, Arcs(polygon.points))
 
+intersection_points(arc::Arc, polygon::Polygon) =
+intersection_points(Arcs([arc.point₁, arc.point₂]), polygon)
+
 """
     intersection_points(polygon₁::Polygon, polygon₂::Polygon)
 
@@ -263,3 +266,187 @@ Return the intersection points [deg] of two polygons.
 intersection_points(polygon₁::Polygon, polygon₂::Polygon) =
 intersection_points(Arcs(polygon₁.points), Arcs(polygon₂.points))
 #TODO Other variants of intersection_points.
+
+"""
+    self_intersection_points(points::Vector{Point{Float64}})
+
+Return the self intersection points [deg] of a set of points.
+"""
+function self_intersection_points(points::Vector{Point{Float64}})
+    if length(points) < 4
+        return Vector{Point{Float64}}()
+    end
+    lss₁_p₁ = points[1]
+    inter_points = Vector{Point{Float64}}()
+    for (index, lss₁_p₂) in enumerate(points[2:end-1])
+        lss₂_p₁ = points[index+2]
+        distances_section = Vector{Float64}()
+        inter_points_section = Vector{Point{Float64}}()
+        for lss₂_p₂ in points[index+3:end]
+            intersection_pnt = intersection_point(lss₁_p₁, lss₁_p₂, lss₂_p₁, lss₂_p₂)
+            if isinf(intersection_pnt.ϕ) || isnan(intersection_pnt.ϕ)
+                #
+            else
+                append!(distances_section,
+                angular_distance(lss₁_p₁, intersection_pnt))
+                append!(inter_points_section, [intersection_pnt])
+            end
+            lss₂_p₁ = lss₂_p₂
+        end
+        lss₁_p₁ = lss₁_p₂
+        p = sortperm(distances_section)
+        append!(inter_points, inter_points_section[p])
+    end
+    return inter_points
+end
+
+#TODO Isinside polygon
+
+
+
+"""
+    isinside(point::Point, polygon::Polygon)
+
+Determine if the `point` is inside the `polygon`. The border is outside the
+    `polygon`.
+
+Source: M. Bevis and J.L. Chatelain, "Locating a point on a spherical surface
+relative to a spherical polygon" 1989
+"""
+function isinside(point::Point, polygon::Polygon)
+    return length(intersection_points(Arc(point, polygon.inside_point), polygon))%2 == 0
+end
+
+"""
+    isinside(arc::Arc, polygon::Polygon)
+
+Determine if the `arc` is fully inside the `polygon`. The border is outside the
+    `polygon`.
+"""
+function isinside(arc::Arc, polygon::Polygon)
+    return isinside(arc.point₁, polygon) && length(intersection_points(arc, polygon)) == 0
+end
+
+"""
+    isinside(arcs::Arcs, polygon::Polygon)
+
+Determine if the `arcs` is fully inside the `polygon`. The border is outside the
+    `polygon`.
+"""
+function isinside(arcs::Arcs, polygon::Polygon)
+    return isinside(arcs.points[1], polygon) && length(intersection_points(arcs, polygon)) == 0
+end
+
+"""
+    isinside(polygon₁::Polygon, polygon₂::Polygon)
+
+Determine if the `polygon₁` is fully inside the `polygon₂`. The border is outside the
+    `polygon₁`.
+"""
+function isinside(polygon₁::Polygon, polygon₂::Polygon)
+    return isinside(polygon₁.points[1], polygon₂) && length(intersection_points(polygon₁, polygon₂)) == 0
+end
+
+"""
+    isonborder(point::Point, polygon::Polygon [,tolerance::Float64=tolerance_deg])
+
+Determine if the `point` is on the border of the `polygon`.
+"""
+function isonborder(point::Point, polygon::Polygon,
+    tolerance::Float64=tolerance_deg)
+        return abs(angular_distance(point, polygon)) < tolerance
+end
+
+"""
+    ison(point::Point, line::Line [,tolerance::Float64=tolerance_deg])
+
+Determine if the `point` is on the `line`.
+"""
+function ison(point::Point, line::Line, tolerance::Float64=tolerance_deg)
+    return abs(angular_distance(point, line)) < tolerance
+end
+
+"""
+    ison(point::Point, arc::Arc [,tolerance::Float64=tolerance_deg])
+
+Determine if the `point` is on the `arc`.
+"""
+function ison(point::Point, arc::Arc, tolerance::Float64=tolerance_deg)
+    return abs(angular_distance(point, arc)) < tolerance
+end
+
+"""
+    ison(point::Point, arc::Arcs [,tolerance::Float64=tolerance_deg])
+
+Determine if the `point` is on the `arcs`.
+"""
+function ison(point::Point, arcs::Arcs, tolerance::Float64=tolerance_deg)
+    return abs(angular_distance(point, arcs)) < tolerance
+end
+
+"""
+    along_line_point(point₃::Point, line₁::Line)
+
+The `along_line_point` from the start `point₁` [deg] to the closest
+point on the great circle line `line₁` to `point₃`.
+"""
+function along_line_point(point₃::Point, line₁::Line)
+    along_dist = along_line_angular_distance(point₃, line₁)
+    p3a = destination_point(line₁, along_dist)
+    p3b = destination_point(line₁, -along_dist)
+    dist_p3a = angular_distance(point₃, p3a)
+    dist_p3b = angular_distance(point₃, p3b)
+    return dist_p3a < dist_p3b ? p3a : p3b
+end
+
+"""
+    isselfintersecting(polygon::Polygon)
+"""
+isselfintersecting(polygon::Polygon) = isselfintersecting(polygon.points)
+
+"""
+    isselfintersecting(arcs::Arcs)
+"""
+isselfintersecting(arcs::Arcs) = isselfintersecting(arcs.points)
+# function isselfintersecting(polygon::Polygon)
+#     inter_pnts = intersection_points(polygon, polygon)
+#     pnts = Vector{Point{Float64}}()
+#     for pnt in inter_pnts
+#         add_pnt = pnt
+#         for polypnt in polygon.points
+#             if pnt == polypnt
+#                 add_pnt = nothing
+#                 break
+#             end
+#         end
+#         if !isnothing(add_pnt)
+#             append!(pnts, [add_pnt])
+#         end
+#     end
+#     return length(pnts) != 0
+# end
+
+"""
+    isselfintersecting(points::Vector{Point{Float64}})
+"""
+function isselfintersecting(points::Vector{Point{Float64}})
+    inter_pnts = self_intersection_points(points)
+    return length(inter_pnts) != 0
+    # println(inter_pnts)
+    # pnts = Vector{Point{Float64}}()
+    # for pnt in inter_pnts
+    #     add_pnt = pnt
+    #     for polypnt in points
+    #         if pnt == polypnt
+    #             add_pnt = nothing
+    #             break
+    #         end
+    #     end
+    #     if !isnothing(add_pnt)
+    #         append!(pnts, [add_pnt])
+    #         return true
+    #     end
+    # end
+    # # return length(pnts) != 0
+    # return false
+end

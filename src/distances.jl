@@ -57,70 +57,133 @@ function distance(angular_distance::Float64, radius::Float64=Rₑ_m)
 end
 
 """
-    angular_distance(point₃::Point, point₁::Point, bearing₁₂::Float64)
+    angular_distance(point₃::Point, point₁::Point, azimuth₁₂::Float64)
 
 Return the `angular_distance` [deg] from point₃ [deg] to the closest point on a
-great circle line starting in `point₁` [deg] with `bearing₁₂` [deg] from
+great circle line starting in `point₁` [deg] with `azimuth₁₂` [deg] from
 `point₁` to `point₂`. It is assumed that the great circle line does not stop in
-`point₂`, but continuous around the unit sphere.
+`point₂`, but continuous around the unit sphere. A positive value indicates
+being right of the line, and negative being left of the line.
 
 Source: www.movable-type.co.uk/scripts/latlong.html
 """
-function angular_distance(point₃::Point, point₁::Point, bearing₁₂::Float64)
+function angular_distance(point₃::Point, point₁::Point, azimuth₁₂::Float64)
     angular_distance₁₃ = angular_distance(point₁, point₃)
-    bearing₁₃ = bearing(point₁, point₃)
-    return angular_distance(angular_distance₁₃, bearing₁₃, bearing₁₂)
+    azimuth₁₃ = azimuth(point₁, point₃)
+    return angular_distance(angular_distance₁₃, azimuth₁₃, azimuth₁₂)
 end
 
 """
     angular_distance(point₃::Point, line₁::Line)
 
 Return the `angular_distance` [deg] from point₃ [deg] to the closest point on a
-great circle line starting in `point₁` [deg] with `bearing₁₂` [deg].
+great circle line starting in `point₁` [deg] with `azimuth₁₂` [deg]. A positive
+value indicates being right of the line, and negative being left of the line.
 
 Source: www.movable-type.co.uk/scripts/latlong.html
 """
 angular_distance(point₃::Point, line₁::Line) = angular_distance(point₃,
-line₁.point, line₁.bearing)
+line₁.point, line₁.azimuth)
 
 """
-    angular_distance(angular_distance₁₃::Float64, bearing₁₃::Float64,
-    bearing₁₂::Float64)
+    angular_distance(angular_distance₁₃::Float64, azimuth₁₃::Float64,
+    azimuth₁₂::Float64)
 
 Return the `angular_distance` [deg] from point₃ [deg] to the closest point on a
-great circle line starting in `point₁` [deg] with `bearing₁₂` [deg]. For the
-calculation we need the `angular_distance₁₃` and `bearing₁₃` between `point₁`
-and `point₃` [deg], and the `bearing₁₂` from `point₁` to `point₂` along the
+great circle line starting in `point₁` [deg] with `azimuth₁₂` [deg]. For the
+calculation we need the `angular_distance₁₃` and `azimuth₁₃` between `point₁`
+and `point₃` [deg], and the `azimuth₁₂` from `point₁` to `point₂` along the
 great circle line. It is assumed that the great circle line does not stop in
 `point₂`, but continuous around the unit sphere.
 
 Source: www.movable-type.co.uk/scripts/latlong.html
 """
-function angular_distance(angular_distance₁₃::Float64, bearing₁₃::Float64,
-bearing₁₂::Float64)
-    return asind(sind(angular_distance₁₃) * sind(bearing₁₃ - bearing₁₂))
+function angular_distance(angular_distance₁₃::Float64, azimuth₁₃::Float64,
+azimuth₁₂::Float64)
+    return asind(sind(angular_distance₁₃) * sind(azimuth₁₃ - azimuth₁₂))
 end
 
+#QUESTION To we have to make it left or right dependent?
 """
     angular_distance(point₃::Point, point₁::Point, point₂::Point)
 
 Return the `angular_distance` [deg] from point₃ [deg] to the closest point on a
 great circle line section starting in `point₁` [deg] and ending in `point₂` [deg].
 The great circle line section does not continue around the unit sphere.
+
+The `angular_distance` does not change sign when being left or right of the arc.
 """
-function angular_distance(point₃::Point, point₁::Point, point₂::Point)
+function angular_distance(point₃::Point, point₁::Point, point₂::Point, tolerance::Float64=tolerance_deg)
     angular_distance₁₂ = angular_distance(point₁, point₂)
     angular_distance₁₃ = angular_distance(point₁, point₃)
     angular_distance₂₃ = angular_distance(point₂, point₃)
-    bearing₁₂ = bearing(point₁, point₂)
-    angular_distance_line3 = angular_distance(point₃, point₁, bearing₁₂)
-    along_line_angular_dist = along_line_angular_distance(angular_distance₁₃, angular_distance_line3)
-    if 0 ≤ along_line_angular_dist ≤ angular_distance₁₂
-        return along_line_angular_dist
+    azimuth₁₂ = azimuth(point₁, point₂)
+    angular_distance_line3 = angular_distance(point₃, point₁, azimuth₁₂)
+    along_line_angular_dist = along_line_angular_distance(angular_distance₁₃,
+    angular_distance_line3)
+    along_line_pnt_3a = along_line_point(point₃, Line(point₁, azimuth₁₂))
+    if abs(angular_distance(along_line_pnt_3a, point₁) +
+        angular_distance(along_line_pnt_3a, point₂) -
+        angular_distance₁₂) < tolerance
+        return abs(angular_distance_line3)
     else
         return min(angular_distance₁₃, angular_distance₂₃)
     end
 end
+
+"""
+    angular_distance(point₃::Point, points::Vector{Points{T}}) where T<:Float64
+
+Return the `angular_distance` [deg] from point₃ [deg] to the closest point on a
+an set of points representing an set of arcs.
+
+The `angular_distance` does not change sign when being left or right of the arc.
+"""
+function angular_distance(point₃::Point, points::Vector{Point{T}}) where
+    T<:Float64
+    point₁ = points[1]
+    point₂ = points[2]
+    min_dist = angular_distance(point₃, point₁, point₂)
+    point₁ = point₂
+    for point₂ in points[2:end]
+        min_dist = min(min_dist, angular_distance(point₃, point₁, point₂))
+        point₁ = point₂
+    end
+    return min_dist
+end
+
+"""
+    angular_distance(point₃::Point, arcs::Arcs)
+
+Return the `angular_distance` [deg] from point₃ [deg] to the closest point on a
+an `arcs`.
+
+The `angular_distance` does not change sign when being left or right of the arc.
+"""
+angular_distance(point₃::Point, arcs::Arcs) = angular_distance(point₃,
+arcs.points)
+# function angular_distance(point₃::Point, arcs::Arcs)
+#     point₁ = arcs.points[1]
+#     point₂ = arcs.points[2]
+#     min_dist = angular_distance(point₃, point₁, point₂)
+#     point₁ = point₂
+#     for point₂ in arcs.points[2:end]
+#         min_dist = min(min_dist, angular_distance(point₃, point₁, point₂))
+#         point₁ = point₂
+#     end
+#     return min_dist
+# end
+
+"""
+    angular_distance(point₃::Point, polygon::Polygon)
+
+Return the `angular_distance` [deg] from point₃ [deg] to the closest point on
+the border of a `polygon`.
+
+The `angular_distance` does not change sign when being left or right of the arc.
+"""
+angular_distance(point₃::Point, polygon::Polygon) = angular_distance(point₃,
+polygon.points)
 
 """
     angular_distance(point₃::Point, arc₁₂::Arc)
@@ -140,7 +203,7 @@ The `along_line_angular_distance` from the start `point₁` [deg] to the closest
 point on the great circle line to `point₃`. As input we need the
 `angular_distance₁₃` [deg] between `point₁` and `point₃` [deg] and the closest
 distance `angular_distance_line3` [deg] between the great circle line and
-`point3` [deg].
+`point3` [deg]. The distance is non-directional.
 
 Source: www.movable-type.co.uk/scripts/latlong.html
 """
@@ -153,7 +216,8 @@ end
     along_line_angular_distance(point₃::Point, line₁::Line)
 
 The `along_line_angular_distance` from the start `point₁` [deg] to the closest
-point on the great circle line `line₁` to `point₃`.
+point on the great circle line `line₁` to `point₃`. The distance is
+non-directional.
 
 Source: www.movable-type.co.uk/scripts/latlong.html
 """
@@ -165,4 +229,3 @@ function along_line_angular_distance(point₃::Point, line₁::Line)
 end
 
 #TODO Distance to polygon
-#TODO Distance to Arcs

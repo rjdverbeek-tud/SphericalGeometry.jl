@@ -69,4 +69,53 @@
     p6ip1]), Polygon(p1ip2, [p1ip2, p2ip2, p3ip2, p4ip2, p5ip2]))) == 4
     @test length(intersection_points(Polygon(p1ip2, [p1ip1, p2ip1, p3ip1, p4ip1, p5ip1,
     p6ip1]), Polygon(p1ip2, [p1ip2, p2ip2, p3ip2, p4ip2, p5ip2]))) == 6
+
+    @test !ison(p1ip1, Arc(p2ip1, p3ip1))
+    # println(angular_distance(p2ip1, Arc(p1ip1, p3ip1)))
+    @test ison(Point(0.0, 5.0), Arc(p1ip2, p2ip2))
+    @test ison(Point(0.0, 5.0), Arcs([p1ip2, p2ip2, p3ip2]))
+    @test isonborder(Point(0.0, 5.0), Polygon(p5ip2, [p1ip2, p2ip2, p3ip2]))
+
+    p1i = Point(0.0, 0.0)
+    p2i = Point(0.0, 10.0)
+    p3i = Point(10.0, 10.0)
+    p4i = Point(5.0, 5.0)
+    p5i = Point(10.0, 0.0)
+    px_inside = Point(7.0, 8.0)
+
+    p6i_out = Point(15.0, 0.0)
+    p7i_out = Point(6.0, 5.0)
+    p8i_out = Point(6.0, -2.0)
+    p9i_in = Point(6.0, 2.0)
+    p10i_in = Point(1.0, 6.0)
+    p11i_in = Point(1.0, 1.0)
+
+    poly_inside = Polygon(px_inside, [p1i, p2i, p3i, p4i, p5i])
+    @test !isinside(p6i_out, poly_inside)
+    @test !isinside(p7i_out, poly_inside)
+    @test !isinside(p8i_out, poly_inside)
+    @test isinside(p9i_in, poly_inside)
+    @test isinside(p10i_in, poly_inside)
+
+    @test isinside(Arc(p9i_in, p10i_in), poly_inside)
+    @test !isinside(Arc(p8i_out, p10i_in), poly_inside)
+    @test !isinside(Arc(p10i_in, p8i_out), poly_inside)
+    @test !isinside(Arc(p6i_out, p8i_out), poly_inside)
+
+    @test isinside(Arcs([p9i_in, p10i_in]), poly_inside)
+    @test !isinside(Arcs([p8i_out, p10i_in]), poly_inside)
+    @test !isinside(Arcs([p10i_in, p8i_out]), poly_inside)
+    @test !isinside(Arcs([p6i_out, p8i_out]), poly_inside)
+
+    poly2 = Polygon(Point(2.0, 2.0), [p9i_in, p11i_in, p10i_in])
+    @test isinside(poly2, poly_inside)
+    #TODO Along line point
+
+    poly3 = Polygon(px_inside, [p1i, p2i, p5i, p3i])
+    arcs3 = Arcs([p1i, p3i, p2i, p5i])
+    @test !isselfintersecting(poly2)
+    @test isselfintersecting(poly3)
+    @test isselfintersecting(arcs3)
+    @test !isselfintersecting(Arcs([p1i, p2i, p3i, p4i, p5i]))
+
 end
