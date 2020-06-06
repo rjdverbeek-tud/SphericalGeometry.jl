@@ -32,19 +32,34 @@ angular_length(arc::Arc) =
 angular_distance(arc.point₁, arc.point₂)
 
 """
-    angular_length(arcs::Arcs)
+    angular_length(points::Vector{Points{Float64}})
 
-Return the `angular_length` [deg] along the arcs on a unit sphere.
+Return the `angular_length` [deg] along the subsequent points on a unit sphere.
 """
-function angular_length(arcs::Arcs)
-    point₁ = arcs.points[1]
+function angular_length(points::Vector{Point{Float64}})
+    point₁ = points[1]
     dist_deg = 0.0
-    for point₂ in arcs.points[2:end]
+    for point₂ in points[2:end]
         dist_deg += angular_distance(point₁, point₂)
         point₁ = point₂
     end
     return dist_deg
 end
+
+"""
+    angular_length(arcs::Arcs)
+
+Return the `angular_length` [deg] along the arcs on a unit sphere.
+"""
+angular_length(arcs::Arcs) = angular_length(arcs.points)
+
+"""
+    angular_length(polygon::Polygon)
+
+Return the `angular_length` [deg] (e.g. circumference) along the polygon on a unit
+sphere.
+"""
+angular_length(polygon::Polygon) = angular_length(polygon.points)
 
 """
     distance(angular_distance::Float64, radius::Float64=Rₑ_m)
@@ -103,7 +118,6 @@ azimuth₁₂::Float64)
     return asind(sind(angular_distance₁₃) * sind(azimuth₁₃ - azimuth₁₂))
 end
 
-#QUESTION To we have to make it left or right dependent?
 """
     angular_distance(point₃::Point, point₁::Point, point₂::Point)
 
@@ -162,17 +176,6 @@ The `angular_distance` does not change sign when being left or right of the arc.
 """
 angular_distance(point₃::Point, arcs::Arcs) = angular_distance(point₃,
 arcs.points)
-# function angular_distance(point₃::Point, arcs::Arcs)
-#     point₁ = arcs.points[1]
-#     point₂ = arcs.points[2]
-#     min_dist = angular_distance(point₃, point₁, point₂)
-#     point₁ = point₂
-#     for point₂ in arcs.points[2:end]
-#         min_dist = min(min_dist, angular_distance(point₃, point₁, point₂))
-#         point₁ = point₂
-#     end
-#     return min_dist
-# end
 
 """
     angular_distance(point₃::Point, polygon::Polygon)
@@ -227,5 +230,3 @@ function along_line_angular_distance(point₃::Point, line₁::Line)
     return along_line_angular_distance(angular_distance₁₃,
     angular_distance_line3)
 end
-
-#TODO Distance to polygon

@@ -70,4 +70,8 @@
     @test distance(angular_distance(Point(5.0, -5.0), arc)) ≈ 553.9*1000 atol = 100.0
     @test distance(angular_distance(Point(0.0, -5.0), px4)) ≈ 556.0*1000 atol = 100.0
     @test distance(angular_distance(Point(5.0, 0.0), arc)) ≈ 0.0*1000 atol = 100.0
+
+    @test distance(angular_length(Polygon(p1, [p1, p2, p3, p1]))) ≈ 8773e3+
+    2585e3+distance(angular_distance(p1, p3)) atol = 1e3
+
 end

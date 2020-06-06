@@ -216,7 +216,6 @@ intersection_point(arc₁::Arc, arc₂::Arc) =
 intersection_point(arc₁.point₁, arc₁.point₂,
 arc₂.point₁, arc₂.point₂)
 
-#TODO Special cases for two lines overlapping.
 """
     intersection_points(arcs₁::Arcs, arcs₂::Arcs)
 
@@ -247,6 +246,9 @@ function intersection_points(arcs₁::Arcs, arcs₂::Arcs)
     return inter_points
 end
 
+intersection_points(arc::Arc, arcs::Arcs) =
+intersection_points(Arcs([arc.point₁, arc.point₂]), arcs)
+
 """
     intersection_points(arcs::Arcs, polygon::Polygon)
 
@@ -265,7 +267,6 @@ Return the intersection points [deg] of two polygons.
 """
 intersection_points(polygon₁::Polygon, polygon₂::Polygon) =
 intersection_points(Arcs(polygon₁.points), Arcs(polygon₂.points))
-#TODO Other variants of intersection_points.
 
 """
     self_intersection_points(points::Vector{Point{Float64}})
@@ -299,10 +300,6 @@ function self_intersection_points(points::Vector{Point{Float64}})
     end
     return inter_points
 end
-
-#TODO Isinside polygon
-
-
 
 """
     isinside(point::Point, polygon::Polygon)
@@ -408,23 +405,6 @@ isselfintersecting(polygon::Polygon) = isselfintersecting(polygon.points)
     isselfintersecting(arcs::Arcs)
 """
 isselfintersecting(arcs::Arcs) = isselfintersecting(arcs.points)
-# function isselfintersecting(polygon::Polygon)
-#     inter_pnts = intersection_points(polygon, polygon)
-#     pnts = Vector{Point{Float64}}()
-#     for pnt in inter_pnts
-#         add_pnt = pnt
-#         for polypnt in polygon.points
-#             if pnt == polypnt
-#                 add_pnt = nothing
-#                 break
-#             end
-#         end
-#         if !isnothing(add_pnt)
-#             append!(pnts, [add_pnt])
-#         end
-#     end
-#     return length(pnts) != 0
-# end
 
 """
     isselfintersecting(points::Vector{Point{Float64}})
@@ -432,21 +412,4 @@ isselfintersecting(arcs::Arcs) = isselfintersecting(arcs.points)
 function isselfintersecting(points::Vector{Point{Float64}})
     inter_pnts = self_intersection_points(points)
     return length(inter_pnts) != 0
-    # println(inter_pnts)
-    # pnts = Vector{Point{Float64}}()
-    # for pnt in inter_pnts
-    #     add_pnt = pnt
-    #     for polypnt in points
-    #         if pnt == polypnt
-    #             add_pnt = nothing
-    #             break
-    #         end
-    #     end
-    #     if !isnothing(add_pnt)
-    #         append!(pnts, [add_pnt])
-    #         return true
-    #     end
-    # end
-    # # return length(pnts) != 0
-    # return false
 end

@@ -71,7 +71,6 @@
     p6ip1]), Polygon(p1ip2, [p1ip2, p2ip2, p3ip2, p4ip2, p5ip2]))) == 6
 
     @test !ison(p1ip1, Arc(p2ip1, p3ip1))
-    # println(angular_distance(p2ip1, Arc(p1ip1, p3ip1)))
     @test ison(Point(0.0, 5.0), Arc(p1ip2, p2ip2))
     @test ison(Point(0.0, 5.0), Arcs([p1ip2, p2ip2, p3ip2]))
     @test isonborder(Point(0.0, 5.0), Polygon(p5ip2, [p1ip2, p2ip2, p3ip2]))
@@ -109,7 +108,6 @@
 
     poly2 = Polygon(Point(2.0, 2.0), [p9i_in, p11i_in, p10i_in])
     @test isinside(poly2, poly_inside)
-    #TODO Along line point
 
     poly3 = Polygon(px_inside, [p1i, p2i, p5i, p3i])
     arcs3 = Arcs([p1i, p3i, p2i, p5i])
