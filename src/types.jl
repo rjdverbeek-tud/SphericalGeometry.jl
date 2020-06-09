@@ -55,7 +55,7 @@ end
 "Polygon type with points [deg]. A minimum of three different points are
 necessary for a polygon."
 struct Polygon{T<:Float64}
-    inside_point::Point
+    inside_point::Point{T}
     points::Vector{Point{T}}
     function Polygon(inside_point::Point, points::Vector{Point{T}}) where T<:Float64
         if points[1] != points[end]

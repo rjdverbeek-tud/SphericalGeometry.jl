@@ -22,3 +22,5 @@ include("azimuth.jl")
 include("distances.jl")
 include("points.jl")
 end
+
+#TODO Consider implementing StaticArrays to improve future speed

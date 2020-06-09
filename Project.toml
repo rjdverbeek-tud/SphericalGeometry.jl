@@ -1,7 +1,7 @@
 name = "SphericalGeometry"
 uuid = "b58e7a8d-b3e8-4a5d-bea9-e6440cab77fd"
 authors = ["René Verbeek"]
-version = "0.1.1"
+version = "0.1.2"
 
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"

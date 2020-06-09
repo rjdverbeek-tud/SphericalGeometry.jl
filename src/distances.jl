@@ -1,11 +1,11 @@
-export angular_distance, distance, along_line_angular_distance, angular_length
-
-"""
-    Radius Earth [m]
-
-Source: en.wikipedia.org/wiki/Earth_radius
-"""
-const Rₑ_m = 6371008.7714
+export angular_distance, along_line_angular_distance, angular_length
+# export angular_distance, distance, along_line_angular_distance, angular_length
+# """
+#     Radius Earth [m]
+#
+# Source: en.wikipedia.org/wiki/Earth_radius
+# """
+# const Rₑ_m = 6371008.7714
 
 """
     angular_distance(point₁::Point, point₂::Point)
@@ -61,15 +61,15 @@ sphere.
 """
 angular_length(polygon::Polygon) = angular_length(polygon.points)
 
-"""
-    distance(angular_distance::Float64, radius::Float64=Rₑ_m)
-
-Convert the `angular_distance` [deg] into a distance on a sphere of given radius
- [m]. The default radius is the radius of the Earth.
-"""
-function distance(angular_distance::Float64, radius::Float64=Rₑ_m)
-    return deg2rad(angular_distance) * radius
-end
+# """
+#     distance(angular_distance::Float64, radius::Float64=Rₑ_m)
+#
+# Convert the `angular_distance` [deg] into a distance on a sphere of given radius
+#  [m]. The default radius is the radius of the Earth.
+# """
+# function distance(angular_distance::Float64, radius::Float64=Rₑ_m)
+#     return deg2rad(angular_distance) * radius
+# end
 
 """
     angular_distance(point₃::Point, point₁::Point, azimuth₁₂::Float64)

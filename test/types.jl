@@ -26,11 +26,11 @@
 
     @test_throws BoundsError lss2 = Arcs([p1])
 
-    pg = Polygon(Point(61.0, 31.0), [p1, p2, p3])
+    pg = Polygon(Point(60.0, 31.0), [p1, p2, p3])
 
     @test pg.points[1].ϕ ≈ 80.0 atol = 0.1
     @test length(pg.points) == 4
     @test pg.points[4].λ ≈ 190.0 atol = 0.1
 
-    @test_throws BoundsError pg2 = Polygon(Point(61.0, 31.0),[p1, p2])
+    @test_throws BoundsError pg2 = Polygon(Point(60.0, 31.0), [p1, p2])
 end

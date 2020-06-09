@@ -6,10 +6,10 @@
     ls = Arc(p1,p2)
     lss = Arcs([p1, p2, p3])
 
-    @test distance(angular_distance(p1, p2)) ≈ 8773e3 atol = 1e3
-    @test distance(angular_length(ls)) ≈ 8773e3 atol = 1e3
-    @test distance(angular_distance(p1, p1)) == 0.0
-    @test distance(angular_length(lss)) ≈ 8773e3+2585e3 atol = 1e3
+    @test (angular_distance(p1, p2)) ≈ 8773e3/6371008.7714 atol = 1e3
+    @test (angular_length(ls)) ≈ 8773e3/6371008.7714 atol = 1e3
+    @test (angular_distance(p1, p1)) == 0.0
+    @test (angular_length(lss)) ≈ (8773e3+2585e3)/6371008.7714 atol = 1e3
 
     # Example http://edwilliams.org/avform.htm Cross track error
     pLAX = Point(33.95,-118.4)
@@ -47,31 +47,31 @@
     px4 = Point(0.0, 0.0)
     px5 = Point(10.0, 0.0)
     arc = Arc(px4, px5)
-    @test distance(angular_distance(Point(-5.0, 0.0), arc)) ≈ 556.0*1000 atol = 100.0
-    @test distance(angular_distance(Point(-5.0, 5.0), arc)) ≈ 785.8*1000 atol = 100.0
-    @test distance(angular_distance(Point(0.0, 5.0), arc)) ≈ 556.0*1000 atol = 100.0
-    @test distance(angular_distance(Point(5.0, 5.0), arc)) ≈ 553.9*1000 atol = 100.0
-    @test distance(angular_distance(Point(10.0, 5.0), arc)) ≈ 547.5*1000 atol = 100.0
-    @test distance(angular_distance(Point(15.0, 0.0), arc)) ≈ 556.0*1000 atol = 100.0
-    @test distance(angular_distance(Point(15.0, -5.0), arc)) ≈ 776.9*1000 atol = 100.0
-    @test distance(angular_distance(Point(10.0, -5.0), arc)) ≈ 547.5*1000 atol = 100.0
-    @test distance(angular_distance(Point(5.0, -5.0), arc)) ≈ 553.9*1000 atol = 100.0
-    @test distance(angular_distance(Point(0.0, -5.0), arc)) ≈ 556.0*1000 atol = 100.0
-    @test distance(angular_distance(Point(5.0, 0.0), arc)) ≈ 0.0*1000 atol = 100.0
+    @test (angular_distance(Point(-5.0, 0.0), arc)) ≈ 556.0*1000/6371008.7714 atol = 100.0
+    @test (angular_distance(Point(-5.0, 5.0), arc)) ≈ 785.8*1000/6371008.7714 atol = 100.0
+    @test (angular_distance(Point(0.0, 5.0), arc)) ≈ 556.0*1000/6371008.7714 atol = 100.0
+    @test (angular_distance(Point(5.0, 5.0), arc)) ≈ 553.9*1000/6371008.7714 atol = 100.0
+    @test (angular_distance(Point(10.0, 5.0), arc)) ≈ 547.5*1000/6371008.7714 atol = 100.0
+    @test (angular_distance(Point(15.0, 0.0), arc)) ≈ 556.0*1000/6371008.7714 atol = 100.0
+    @test (angular_distance(Point(15.0, -5.0), arc)) ≈ 776.9*1000/6371008.7714 atol = 100.0
+    @test (angular_distance(Point(10.0, -5.0), arc)) ≈ 547.5*1000/6371008.7714 atol = 100.0
+    @test (angular_distance(Point(5.0, -5.0), arc)) ≈ 553.9*1000/6371008.7714 atol = 100.0
+    @test (angular_distance(Point(0.0, -5.0), arc)) ≈ 556.0*1000/6371008.7714 atol = 100.0
+    @test (angular_distance(Point(5.0, 0.0), arc)) ≈ 0.0*1000/6371008.7714 atol = 100.0
 
-    @test distance(angular_distance(Point(-5.0, 0.0), px4)) ≈ 556.0*1000 atol = 100.0
-    @test distance(angular_distance(Point(-5.0, 5.0), px4)) ≈ 785.8*1000 atol = 100.0
-    @test distance(angular_distance(Point(0.0, 5.0), px4)) ≈ 556.0*1000 atol = 100.0
-    @test distance(angular_distance(Point(5.0, 5.0), arc)) ≈ 553.9*1000 atol = 100.0
-    @test distance(angular_distance(Point(10.0, 5.0), px5)) ≈ 547.5*1000 atol = 100.0
-    @test distance(angular_distance(Point(15.0, 0.0), px5)) ≈ 556.0*1000 atol = 100.0
-    @test distance(angular_distance(Point(15.0, -5.0), px5)) ≈ 776.9*1000 atol = 100.0
-    @test distance(angular_distance(Point(10.0, -5.0), px5)) ≈ 547.5*1000 atol = 100.0
-    @test distance(angular_distance(Point(5.0, -5.0), arc)) ≈ 553.9*1000 atol = 100.0
-    @test distance(angular_distance(Point(0.0, -5.0), px4)) ≈ 556.0*1000 atol = 100.0
-    @test distance(angular_distance(Point(5.0, 0.0), arc)) ≈ 0.0*1000 atol = 100.0
+    @test (angular_distance(Point(-5.0, 0.0), px4)) ≈ 556.0*1000/6371008.7714 atol = 100.0
+    @test (angular_distance(Point(-5.0, 5.0), px4)) ≈ 785.8*1000/6371008.7714 atol = 100.0
+    @test (angular_distance(Point(0.0, 5.0), px4)) ≈ 556.0*1000/6371008.7714 atol = 100.0
+    @test (angular_distance(Point(5.0, 5.0), arc)) ≈ 553.9*1000/6371008.7714 atol = 100.0
+    @test (angular_distance(Point(10.0, 5.0), px5)) ≈ 547.5*1000/6371008.7714 atol = 100.0
+    @test (angular_distance(Point(15.0, 0.0), px5)) ≈ 556.0*1000/6371008.7714 atol = 100.0
+    @test (angular_distance(Point(15.0, -5.0), px5)) ≈ 776.9*1000/6371008.7714 atol = 100.0
+    @test (angular_distance(Point(10.0, -5.0), px5)) ≈ 547.5*1000/6371008.7714 atol = 100.0
+    @test (angular_distance(Point(5.0, -5.0), arc)) ≈ 553.9*1000/6371008.7714 atol = 100.0
+    @test (angular_distance(Point(0.0, -5.0), px4)) ≈ 556.0*1000/6371008.7714 atol = 100.0
+    @test (angular_distance(Point(5.0, 0.0), arc)) ≈ 0.0*1000/6371008.7714 atol = 100.0
 
-    @test distance(angular_length(Polygon(p1, [p1, p2, p3, p1]))) ≈ 8773e3+
-    2585e3+distance(angular_distance(p1, p3)) atol = 1e3
+    @test (angular_length(Polygon(p1, [p1, p2, p3, p1]))) ≈ (8773e3+
+    2585e3)/6371008.7714+(angular_distance(p1, p3)) atol = 1e3
 
 end
