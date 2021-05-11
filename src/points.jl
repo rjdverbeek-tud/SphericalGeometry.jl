@@ -345,16 +345,6 @@ function isinside(polygon₁::Polygon, polygon₂::Polygon)
 end
 
 """
-    isonborder(point::Point, polygon::Polygon [,tolerance::Float64=tolerance_deg])
-
-Determine if the `point` is on the border of the `polygon`.
-"""
-function isonborder(point::Point, polygon::Polygon,
-    tolerance::Float64=tolerance_deg)
-        return abs(angular_distance(point, polygon)) < tolerance
-end
-
-"""
     ison(point::Point, line::Line [,tolerance::Float64=tolerance_deg])
 
 Determine if the `point` is on the `line`.
@@ -379,6 +369,15 @@ Determine if the `point` is on the `arcs`.
 """
 function ison(point::Point, arcs::Arcs, tolerance::Float64=tolerance_deg)
     return abs(angular_distance(point, arcs)) < tolerance
+end
+
+"""
+    ison(point::Point, polygon::Polygon [,tolerance::Float64=tolerance_deg])
+
+Determine if the `point` is on the border of the `polygon`.
+"""
+function ison(point::Point, polygon::Polygon, tolerance::Float64=tolerance_deg)
+    return abs(angular_distance(point, polygon)) < tolerance
 end
 
 """

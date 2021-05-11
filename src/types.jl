@@ -10,10 +10,10 @@ end
 (rad2deg)(x::Point) = Point(rad2deg(x.ϕ), rad2deg(x.λ))
 (deg2rad)(x::Point) = Point(deg2rad(x.ϕ), deg2rad(x.λ))
 
-"Multiple Points"
-struct MultiPoint{T<:Float64}
-    mpoint::Vector{Point{T}}
-end
+# "Multiple Points"
+# struct MultiPoint{T<:Float64}
+#     mpoint::Vector{Point{T}}
+# end
 
 "Arc type with start position pos₁ [deg] and end position pos₂
 [deg]"
@@ -22,10 +22,10 @@ struct Arc{T<:Float64}
     point₂::Point{T}
 end
 
-"Multiple Arc"
-struct MultiArc{T<:Float64}
-    marc::Vector{Arc{T}}
-end
+# "Multiple Arc"
+# struct MultiArc{T<:Float64}
+#     marc::Vector{Arc{T}}
+# end
 
 "Line type with `point` [deg] and `azimuth` [deg]"
 struct Line{T<:Float64}
@@ -46,10 +46,10 @@ struct Arcs{T<:Float64}
     end
 end
 
-"Multiple Arcs"
-struct MultiArcs{T<:Float64}
-    marcs::Vector{Arcs{T}}
-end
+# "Multiple Arcs"
+# struct MultiArcs{T<:Float64}
+#     marcs::Vector{Arcs{T}}
+# end
 
 #TODO Ensure that the inside_point is not on any line crossing adjacent points of the polygon
 "Polygon type with points [deg]. A minimum of three different points are
@@ -69,7 +69,7 @@ struct Polygon{T<:Float64}
     end
 end
 
-"Multiple Polygons"
-struct MultiPolygons{T<:Float64}
-    mpolygon::Vector{Polygon{T}}
-end
+# "Multiple Polygons"
+# struct MultiPolygons{T<:Float64}
+#     mpolygon::Vector{Polygon{T}}
+# end

@@ -23,7 +23,7 @@ function angular_distance(point₁::Point, point₂::Point)
 end
 
 """
-    angular_length(line::Line)
+    angular_length(arc::Arc)
 
 Return the `angular_length` [deg] of the great circle line section on a
 unit sphere.

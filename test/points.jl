@@ -73,7 +73,7 @@
     @test !ison(p1ip1, Arc(p2ip1, p3ip1))
     @test ison(Point(0.0, 5.0), Arc(p1ip2, p2ip2))
     @test ison(Point(0.0, 5.0), Arcs([p1ip2, p2ip2, p3ip2]))
-    @test isonborder(Point(0.0, 5.0), Polygon(p5ip2, [p1ip2, p2ip2, p3ip2]))
+    @test ison(Point(0.0, 5.0), Polygon(p5ip2, [p1ip2, p2ip2, p3ip2]))
 
     p1i = Point(0.0, 0.0)
     p2i = Point(0.0, 10.0)
