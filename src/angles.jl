@@ -1,4 +1,4 @@
-export azimuth, final_azimuth, spherical_angle
+export azimuth, final_azimuth, spherical_angle, spherical_excess
 
 """
     azimuth(point₁::Point, point₂::Point)
@@ -78,7 +78,8 @@ spherical_angle(angular_distance(point₁, point₂), angular_distance(point₂,
 """
     spherical_excess(angular_distance₁₂::Float64, angular_distance₂₃::Float64, angular_distance₁₃::Float64)
 
-Return the 'spherical_excess' [deg] of the spherical triangle 123 given the points point₁ - point₂ - point₃
+Return the 'spherical_excess' [deg] of the spherical triangle 123 given the angular distances between the
+points point₁, point₂, and point₃
 
 Source: mathworld.wolfram.com/SphericalExcess.html
 """
@@ -89,3 +90,13 @@ function spherical_excess(angular_distance₁₂::Float64, angular_distance₂�
     C = spherical_angle(angular_distance₂₃, angular_distance₁₃, angular_distance₁₂)
     return A+B+C-180.0
 end
+
+"""
+    spherical_excess(point₁::Point, point₂::Point, point₃::Point)
+
+Return the 'spherical_excess' [deg] of the spherical triangle 123 given the points point₁ - point₂ - point₃
+
+Source: mathworld.wolfram.com/SphericalExcess.html
+"""
+spherical_excess(point₁::Point, point₂::Point, point₃::Point) =
+spherical_excess(angular_distance(point₁, point₂), angular_distance(point₂, point₃), angular_distance(point₁, point₃))

@@ -15,6 +15,7 @@ module SphericalGeometry
 import Base:(-)
 import Base:(*)
 import Base.Math.rad2deg, Base.Math.deg2rad
+import LinearAlgebra.cross, LinearAlgebra.dot, LinearAlgebra.norm
 
 include("utility.jl")
 include("types.jl")

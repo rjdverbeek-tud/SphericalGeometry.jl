@@ -191,20 +191,50 @@ by two sets of two points: `point₁` and `point₂` [deg] and `point₃` and
 
 Under certain circumstances the results can be an ∞ or *ambiguous solution*.
 """
-function intersection_point(point₁::Point, point₂::Point, point₃::Point,
-    point₄::Point)
-    inter_pnt = intersection_point(point₁, point₃, azimuth(point₁, point₂),
-    azimuth(point₃, point₄))
-    if isinf(inter_pnt.ϕ)
-        return inter_pnt
-    elseif angular_distance(point₁, point₂) + tolerance_deg ≥ angular_distance(point₁, inter_pnt) &&
-        angular_distance(point₃, point₄) + tolerance_deg ≥ angular_distance(point₃, inter_pnt)
-        return inter_pnt
-    else
-        return Point(NaN, NaN)
-    end
-end
+# function intersection_point(point₁::Point, point₂::Point, point₃::Point,
+#     point₄::Point)
+#     inter_pnt = intersection_point(point₁, point₃, azimuth(point₁, point₂),
+#     azimuth(point₃, point₄))
+#     if isinf(inter_pnt.ϕ)
+#         return inter_pnt
+#     elseif angular_distance(point₁, point₂) + tolerance_deg ≥ angular_distance(point₁, inter_pnt) &&
+#         angular_distance(point₃, point₄) + tolerance_deg ≥ angular_distance(point₃, inter_pnt)
+#         return inter_pnt
+#     else
+#         return Point(NaN, NaN)
+#     end
+# end
 
+# https://blog.mbedded.ninja/mathematics/geometry/spherical-geometry/finding-the-intersection-of-two-arcs-that-lie-on-a-sphere/
+function intersection_point(point₁::Point, point₂::Point, point₃::Point, point₄::Point)
+    point_spherical(point::Point) = [cosd(point.λ)*cosd(point.ϕ); sind(point.λ)*cosd(point.ϕ); sind(point.ϕ)]
+    sph_point₁₁ = point_spherical(point₁)
+    sph_point₁₂ = point_spherical(point₂)
+    sph_point₂₁ = point_spherical(point₃)
+    sph_point₂₂ = point_spherical(point₄)
+    N₁ = cross(sph_point₁₁,sph_point₁₂)
+    N₂ = cross(sph_point₂₁, sph_point₂₂)
+    L = cross(N₁, N₂)
+    I₁ = L/norm(L)
+    I₂ = -I₁
+
+    angular_dist(sph_point₁::Vector{Float64}, sph_point₂::Vector{Float64}) = 
+    acosd(dot(sph_point₁, sph_point₂) / (norm(sph_point₁)*norm(sph_point₂)))
+
+    for i in 1:2
+        i == 1 ? Iₙ = I₁ : Iₙ = I₂
+        θ₁₁ᵢₙ = angular_dist(sph_point₁₁, Iₙ)
+        θ₁₂ᵢₙ = angular_dist(sph_point₁₂, Iₙ)
+        θ₁₁₁₂ = angular_dist(sph_point₁₁, sph_point₁₂)
+        θ₂₁ᵢₙ = angular_dist(sph_point₂₁, Iₙ)
+        θ₂₂ᵢₙ = angular_dist(sph_point₂₂, Iₙ)
+        θ₂₁₂₂ = angular_dist(sph_point₂₁, sph_point₂₂)
+        if abs(θ₁₁ᵢₙ + θ₁₂ᵢₙ - θ₁₁₁₂) < tolerance_deg && abs(θ₂₁ᵢₙ + θ₂₂ᵢₙ - θ₂₁₂₂) < tolerance_deg
+            return Point(atand(Iₙ[3], √(Iₙ[1]^2 + Iₙ[2]^2)), atand(Iₙ[2], Iₙ[1]))
+        end
+    end
+    return Point(NaN, NaN)
+end
 """
     intersection_point(arc₁::Arc, arc₂::Arc)
 
@@ -230,6 +260,7 @@ function intersection_points(arcs₁::Arcs, arcs₂::Arcs)
         inter_points_section = Vector{Point{Float64}}()
         for lss₂_p₂ in arcs₂.points[2:end]
             intersection_pnt = intersection_point(lss₁_p₁, lss₁_p₂, lss₂_p₁, lss₂_p₂)
+            # println("ip ",intersection_pnt, " ", lss₁_p₁, " ", lss₁_p₂, " ", lss₂_p₁, " ", lss₂_p₂)
             if isinf(intersection_pnt.ϕ) || isnan(intersection_pnt.ϕ)
                 #
             else
@@ -398,7 +429,13 @@ end
 """
     isselfintersecting(polygon::Polygon)
 """
-isselfintersecting(polygon::Polygon) = isselfintersecting(polygon.points)
+function isselfintersecting(polygon::Polygon)
+    polypoints = deepcopy(polygon.points)
+    fraction = 0.999999
+    updatelast = intermediate_point(polypoints[end-1], polypoints[end], fraction)
+    polypoints[end] = updatelast
+    isselfintersecting(polypoints)
+end
 
 """
     isselfintersecting(arcs::Arcs)
