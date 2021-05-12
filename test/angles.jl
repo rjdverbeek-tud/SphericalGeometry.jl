@@ -19,6 +19,8 @@
     @test spherical_angle(angular_distance_x, angular_distance_z, angular_distance_y) ≈ 54.1 atol = 0.1
     @test spherical_angle(angular_distance_y, angular_distance_x, angular_distance_z) ≈ 56.4 atol = 0.1
 
+    @test spherical_excess(angular_distance_z, angular_distance_y, angular_distance_x) ≈ 7.1 atol = 0.1
+
     angular_distance_x2 = 35.0
     angular_distance_y2 = 35.0
     angular_distance_z2 = 0.1

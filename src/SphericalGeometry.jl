@@ -22,8 +22,8 @@ include("angles.jl")
 include("distances.jl")
 include("points.jl")
 include("operations.jl")
+include("area.jl")
 end
 
-#TODO include area.jl
 #TODO Add Area of spherical triangle
 #TODO Add Area of spherical polygon
