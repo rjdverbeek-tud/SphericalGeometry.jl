@@ -18,10 +18,12 @@ import Base.Math.rad2deg, Base.Math.deg2rad
 
 include("utility.jl")
 include("types.jl")
-include("azimuth.jl")
+include("angles.jl")
 include("distances.jl")
 include("points.jl")
 include("operations.jl")
 end
 
-#TODO Consider implementing StaticArrays to improve future speed
+#TODO include area.jl
+#TODO Add Area of spherical triangle
+#TODO Add Area of spherical polygon
