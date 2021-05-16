@@ -208,6 +208,7 @@ Under certain circumstances the results can be an ∞ or *ambiguous solution*.
 # https://blog.mbedded.ninja/mathematics/geometry/spherical-geometry/finding-the-intersection-of-two-arcs-that-lie-on-a-sphere/
 function intersection_point(point₁::Point, point₂::Point, point₃::Point, point₄::Point)
     point_spherical(point::Point) = [cosd(point.λ)*cosd(point.ϕ); sind(point.λ)*cosd(point.ϕ); sind(point.ϕ)]
+    point_cartesian(point::Vector) = Point(asind(point[3]), atand(point[2], point[1]))
     sph_point₁₁ = point_spherical(point₁)
     sph_point₁₂ = point_spherical(point₂)
     sph_point₂₁ = point_spherical(point₃)
@@ -219,7 +220,7 @@ function intersection_point(point₁::Point, point₂::Point, point₃::Point, p
     I₂ = -I₁
 
     angular_dist(sph_point₁::Vector{Float64}, sph_point₂::Vector{Float64}) = 
-    acosd(dot(sph_point₁, sph_point₂) / (norm(sph_point₁)*norm(sph_point₂)))
+    angular_distance(point_cartesian(sph_point₁), point_cartesian(sph_point₂))
 
     for i in 1:2
         i == 1 ? Iₙ = I₁ : Iₙ = I₂
@@ -230,7 +231,7 @@ function intersection_point(point₁::Point, point₂::Point, point₃::Point, p
         θ₂₂ᵢₙ = angular_dist(sph_point₂₂, Iₙ)
         θ₂₁₂₂ = angular_dist(sph_point₂₁, sph_point₂₂)
         if abs(θ₁₁ᵢₙ + θ₁₂ᵢₙ - θ₁₁₁₂) < tolerance_deg && abs(θ₂₁ᵢₙ + θ₂₂ᵢₙ - θ₂₁₂₂) < tolerance_deg
-            return Point(atand(Iₙ[3], √(Iₙ[1]^2 + Iₙ[2]^2)), atand(Iₙ[2], Iₙ[1]))
+            return point_cartesian(Iₙ)
         end
     end
     return Point(NaN, NaN)
