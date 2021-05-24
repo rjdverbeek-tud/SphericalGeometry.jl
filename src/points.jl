@@ -1,5 +1,7 @@
 export midpoint, intermediate_point, destination_point, intersection_point,
-intersection_points, isinside, isonborder, ison, isselfintersecting
+intersection_points, isinside, isonborder, ison, isselfintersecting,
+highest_latitude, highest_latitude_point, lowest_latitude, lowest_latitude_point,
+point_cartesian, point_spherical
 
 """
     midpoint(point₁::Point, point₂::Point)
@@ -190,29 +192,19 @@ by two sets of two points: `point₁` and `point₂` [deg] and `point₃` and
 `point₄` [deg].
 
 Under certain circumstances the results can be an ∞ or *ambiguous solution*.
+https://blog.mbedded.ninja/mathematics/geometry/spherical-geometry/finding-the-intersection-of-two-arcs-that-lie-on-a-sphere/
 """
-# function intersection_point(point₁::Point, point₂::Point, point₃::Point,
-#     point₄::Point)
-#     inter_pnt = intersection_point(point₁, point₃, azimuth(point₁, point₂),
-#     azimuth(point₃, point₄))
-#     if isinf(inter_pnt.ϕ)
-#         return inter_pnt
-#     elseif angular_distance(point₁, point₂) + tolerance_deg ≥ angular_distance(point₁, inter_pnt) &&
-#         angular_distance(point₃, point₄) + tolerance_deg ≥ angular_distance(point₃, inter_pnt)
-#         return inter_pnt
-#     else
-#         return Point(NaN, NaN)
-#     end
-# end
-
-# https://blog.mbedded.ninja/mathematics/geometry/spherical-geometry/finding-the-intersection-of-two-arcs-that-lie-on-a-sphere/
 function intersection_point(point₁::Point, point₂::Point, point₃::Point, point₄::Point)
-    point_spherical(point::Point) = [cosd(point.λ)*cosd(point.ϕ); sind(point.λ)*cosd(point.ϕ); sind(point.ϕ)]
-    point_cartesian(point::Vector) = Point(asind(point[3]), atand(point[2], point[1]))
-    sph_point₁₁ = point_spherical(point₁)
-    sph_point₁₂ = point_spherical(point₂)
-    sph_point₂₁ = point_spherical(point₃)
-    sph_point₂₂ = point_spherical(point₄)
+    if point₁ == point₃ || point₁ == point₄
+        return point₁
+    elseif point₂ == point₃ || point₂ == point₄
+        return point₂
+    end
+
+    sph_point₁₁ = point_cartesian(point₁)
+    sph_point₁₂ = point_cartesian(point₂)
+    sph_point₂₁ = point_cartesian(point₃)
+    sph_point₂₂ = point_cartesian(point₄)
     N₁ = cross(sph_point₁₁,sph_point₁₂)
     N₂ = cross(sph_point₂₁, sph_point₂₂)
     L = cross(N₁, N₂)
@@ -220,7 +212,7 @@ function intersection_point(point₁::Point, point₂::Point, point₃::Point, p
     I₂ = -I₁
 
     angular_dist(sph_point₁::Vector{Float64}, sph_point₂::Vector{Float64}) = 
-    angular_distance(point_cartesian(sph_point₁), point_cartesian(sph_point₂))
+    angular_distance(point_spherical(sph_point₁), point_spherical(sph_point₂))
 
     for i in 1:2
         i == 1 ? Iₙ = I₁ : Iₙ = I₂
@@ -231,11 +223,12 @@ function intersection_point(point₁::Point, point₂::Point, point₃::Point, p
         θ₂₂ᵢₙ = angular_dist(sph_point₂₂, Iₙ)
         θ₂₁₂₂ = angular_dist(sph_point₂₁, sph_point₂₂)
         if abs(θ₁₁ᵢₙ + θ₁₂ᵢₙ - θ₁₁₁₂) < tolerance_deg && abs(θ₂₁ᵢₙ + θ₂₂ᵢₙ - θ₂₁₂₂) < tolerance_deg
-            return point_cartesian(Iₙ)
+            return point_spherical(Iₙ)
         end
     end
     return Point(NaN, NaN)
 end
+
 """
     intersection_point(arc₁::Arc, arc₂::Arc)
 
@@ -244,8 +237,7 @@ Return the intersection `point` [deg] of two great circle line sections.
 Under certain circumstances the results can be an ∞ or *ambiguous solution*.
 """
 intersection_point(arc₁::Arc, arc₂::Arc) =
-intersection_point(arc₁.point₁, arc₁.point₂,
-arc₂.point₁, arc₂.point₂)
+intersection_point(arc₁.point₁, arc₁.point₂, arc₂.point₁, arc₂.point₂)
 
 """
     intersection_points(arcs₁::Arcs, arcs₂::Arcs)
@@ -255,19 +247,52 @@ Return the intersection points [deg] of two line sections.
 function intersection_points(arcs₁::Arcs, arcs₂::Arcs)
     lss₁_p₁ = arcs₁.points[1]
     inter_points = Vector{Point{Float64}}()
-    for lss₁_p₂ in arcs₁.points[2:end]
+    np1 = length(arcs₁.points)
+    np2 = length(arcs₂.points)
+    for (id12, lss₁_p₂) in enumerate(arcs₁.points[2:end])
         lss₂_p₁ = arcs₂.points[1]
         distances_section = Vector{Float64}()
         inter_points_section = Vector{Point{Float64}}()
-        for lss₂_p₂ in arcs₂.points[2:end]
+        for (id22, lss₂_p₂) in enumerate(arcs₂.points[2:end])
             intersection_pnt = intersection_point(lss₁_p₁, lss₁_p₂, lss₂_p₁, lss₂_p₂)
-            # println("ip ",intersection_pnt, " ", lss₁_p₁, " ", lss₁_p₂, " ", lss₂_p₁, " ", lss₂_p₂)
             if isinf(intersection_pnt.ϕ) || isnan(intersection_pnt.ϕ)
                 #
+            # elseif intersection_pnt == lss₁_p₂ || intersection_pnt == lss₂_p₂
+            #     if id12 == np1 - 1 && id22 == np2 - 1
+            #         append!(distances_section,
+            #         angular_distance(lss₁_p₁, intersection_pnt))
+            #         append!(inter_points_section, [intersection_pnt])
+            #     elseif (id12 == 1 && id22 == np2 - 1) || (id12 == np1 - 1 && id22 == 1)
+            #         append!(distances_section,
+            #         angular_distance(lss₁_p₁, intersection_pnt))
+            #         append!(inter_points_section, [intersection_pnt])
+            #     end
+            # else
+            elseif intersection_pnt in inter_points_section || intersection_pnt in inter_points
+                #
             else
-                append!(distances_section,
-                angular_distance(lss₁_p₁, intersection_pnt))
-                append!(inter_points_section, [intersection_pnt])
+                ipin = false
+                for ip in inter_points_section
+                    if isapprox(intersection_pnt.ϕ, ip.ϕ; atol=tolerance_deg) && 
+                        isapprox(intersection_pnt.λ, ip.λ; atol=tolerance_deg)
+                        ipin = true
+                        break
+                    end
+                end
+                for ip in inter_points
+                    if isapprox(intersection_pnt.ϕ, ip.ϕ; atol=tolerance_deg) && 
+                        isapprox(intersection_pnt.λ, ip.λ; atol=tolerance_deg)
+                        ipin = true
+                        break
+                    end
+                end
+                if ipin
+                    #
+                else
+                    append!(distances_section,
+                    angular_distance(lss₁_p₁, intersection_pnt))
+                    append!(inter_points_section, [intersection_pnt])
+                end
             end
             lss₂_p₁ = lss₂_p₂
         end
@@ -275,7 +300,7 @@ function intersection_points(arcs₁::Arcs, arcs₂::Arcs)
         p = sortperm(distances_section)
         append!(inter_points, inter_points_section[p])
     end
-    return inter_points
+    return unique(inter_points)
 end
 
 intersection_points(arc::Arc, arcs::Arcs) =
@@ -343,7 +368,7 @@ Source: M. Bevis and J.L. Chatelain, "Locating a point on a spherical surface
 relative to a spherical polygon" 1989
 """
 function isinside(point::Point, polygon::Polygon)
-    return length(intersection_points(Arc(point, polygon.inside_point), polygon))%2 == 0
+    return iseven(length(intersection_points(Arc(point, polygon.inside_point), polygon)))
 end
 
 """
@@ -450,3 +475,97 @@ function isselfintersecting(points::Vector{Point{Float64}})
     inter_pnts = self_intersection_points(points)
     return length(inter_pnts) != 0
 end
+
+"""
+    highest_latitude(point::Point, azimuth::Float64)
+
+The highest latitude a great circle reaches when starting in a point along the
+given azimuth [deg].
+
+Source: https://www.edwilliams.org/avform147.htm#Clairaut
+"""
+function highest_latitude(point₁::Point, azimuth₁₂::Float64)
+    return acosd(abs(sind(azimuth₁₂)*cosd(point₁.ϕ)))
+end
+
+function lowest_latitude(point₁::Point, azimuth₁₂::Float64)
+    return -highest_latitude(point₁, azimuth₁₂)
+end
+
+"""
+    highest_latitude_point(point::Point, azimuth::Float64)
+
+The highest latitude point a great circle reaches when starting in point along the
+given azimuth [deg].
+
+Source: https://www.edwilliams.org/avform147.htm#XTE
+"""
+function highest_latitude_point(point₁::Point, azimuth₁₂::Float64)
+    pole = Point(90.0, 0.0)
+    Δazimuth = azimuth(point₁,pole) - azimuth₁₂
+    dist₁ₚ = angular_distance(point₁, pole)
+    p = atand(sind(dist₁ₚ)*cosd(Δazimuth), cosd(dist₁ₚ))
+    return destination_point(point₁, p, azimuth₁₂)
+end
+
+function lowest_latitude_point(point₁::Point, azimuth₁₂::Float64)
+    hlp = highest_latitude_point(point₁, azimuth₁₂)
+    return Point(-hlp.ϕ, normalize(hlp.λ+180.0, -180.0, 180.0))
+end
+    
+#TBD Test scenarios for highest_latitude_pointhlp two points
+
+"""
+    highest_latitude_point(point₁::Point, point₂::Point)
+
+The highest latitude point a great circle reaches when starting in point₁ 
+towards point₂. The point must be between point₁ and point₂.
+
+Source: https://www.edwilliams.org/avform147.htm#XTE
+"""
+function highest_latitude_point(point₁::Point, point₂::Point)
+    azimuth₁₂ = azimuth(point₁, point₂)
+    hlp = highest_latitude_point(point₁, azimuth₁₂)
+    if point₁.λ == point₂.λ
+        if point₁.ϕ > point₂.ϕ
+            return point₁
+        else
+            return point₂
+        end
+    else
+        if point₁.λ ≤ hlp.λ ≤ point₂.λ || point₂.λ ≤ hlp.λ ≤ point₁.λ
+            return hlp
+        else
+            if point₁.ϕ > point₂.ϕ
+                return point₁
+            else
+                return point₂
+            end
+        end
+    end
+end
+
+function lowest_latitude_point(point₁::Point, point₂::Point)
+    azimuth₁₂ = azimuth(point₁, point₂)
+    llp = lowest_latitude_point(point₁, azimuth₁₂)
+    if point₁.λ == point₂.λ
+        if point₁.ϕ > point₂.ϕ
+            return point₂
+        else
+            return point₁
+        end
+    else
+        if point₁.λ ≤ llp.λ ≤ point₂.λ || point₂.λ ≤ llp.λ ≤ point₁.λ
+            return llp
+        else
+            if point₁.ϕ > point₂.ϕ
+                return point₂
+            else
+                return point₁
+            end
+        end
+    end
+end
+   
+point_cartesian(point::Point) = [cosd(point.λ)*cosd(point.ϕ); sind(point.λ)*cosd(point.ϕ); sind(point.ϕ)]
+point_spherical(point::Vector) = Point(asind(point[3]), atand(point[2], point[1]))

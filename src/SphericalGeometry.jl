@@ -26,5 +26,5 @@ include("operations.jl")
 include("area.jl")
 end
 
-#TODO Add Area of spherical triangle
-#TODO Add Area of spherical polygon
+# TODO Check https://spacetelescope.github.io/spherical_geometry/index.html for additional functions
+# to implement

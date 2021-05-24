@@ -7,10 +7,15 @@
 A Julia Package for handling Spherical Geometry.
 
 It includes the calculation of:
-* The distance to a point, line, arc, multi-arc, or polygon border
-* The intersection points between lines, arcs, multi-arcs, and polygon borders.
-* The self intersection points of multi-arcs and polygon borders
+* The distance to a point, line, arc, arcs, or polygon border
+* The area of spherical triangle and polygon
+* The intersection points between lines, arcs, and polygon borders.
+* The midpoint of two points, arc or arcs
+* The intermediate point of two points, arc or arcs
+* The destination point given a point, distance and azimuth
+* The self intersection points of arcs and polygon borders
+* The azimuth between two points
 
 And testing if:
-* a point, arc or multi-arc is inside a polygon
-* a point is on a line, arc, multi-arc or polygon border
+* a point, arc or arcs is inside a polygon
+* a point is on a line, arc, arcs or polygon border

@@ -78,6 +78,55 @@
     @test length(intersection_points(Polygon(p1ip2, [p1ip1, p2ip1, p3ip1, p4ip1, p5ip1,
     p6ip1]), Polygon(p1ip2, [p1ip2, p2ip2, p3ip2, p4ip2, p5ip2]))) == 6
 
+    #concave polygon
+    pc1 = Point(64.0, 27.0)
+    pc2 = Point(47.0, 0.0)
+    pc3 = Point(42.0, 25.0)
+    pc4 = intermediate_point(pc2,pc3,0.33)
+    pc5 = Point(52.0, 16.0)
+    pc6 = intermediate_point(pc2,pc3,0.67)
+    pc7 = Point(55.0, -7.0)
+    pc8 = intermediate_point(pc2,pc1,0.33)
+    pc9 = Point(62.0, 4.0)
+    pc10 = intermediate_point(pc2,pc1,0.67)
+    pc11 = Point(56.0, 21.0)
+
+    polygon_concave = Polygon(pc11,
+    [pc1,pc3,pc6,pc5,pc4,pc2,pc7,pc8,pc9,pc10])
+
+    @test length(intersection_points(Arc(Point(63.0, 27.0), Point(65.0, 27.0)), polygon_concave)) == 1
+    @test length(intersection_points(Arc(Point(63.0, 28.0), Point(65.0, 28.0)), polygon_concave)) == 0
+    @test length(intersection_points(Arc(Point(62.0, 4.0), Point(55.0, -7.0)), polygon_concave)) == 2
+    @test length(intersection_points(Arc(Point(56.0, 21.0), Point(55.0, 21.0)), polygon_concave)) == 0
+    @test length(intersection_points(Arc(Point(64.0, 26.0), Point(47.0, -1.0)), polygon_concave)) == 4
+    @test length(intersection_points(Arc(Point(56.0, 21.0), Point(52.0, 16.0)), polygon_concave)) == 1
+    @test length(intersection_points(Arc(Point(52.0, 16.0), Point(56.0, 21.0)), polygon_concave)) == 1
+    @test length(intersection_points(Arc(Point(56.0, 21.0), Point(56.0, 30.0)), polygon_concave)) == 1
+
+    pt1 = Point(20.0, -5.0)
+    pt2 = Point(21.0, 5.0)
+    pt3 = Point(22.0, 15.0)
+    pa = Point(40.0, 5.0)
+    pb = Point(30.0, 5.0)
+    pc = Point(10.0, 5.0)
+    pd = Point(0.0, 5.0)
+    arcs123 = Arcs([pt1, pt2, pt3])
+
+    z = intersection_points(arcs123, Arcs([pt2,pc,pd]))
+
+    @test length(intersection_points(arcs123, Arcs([pt1,pc,pd]))) == 1
+    @test length(intersection_points(arcs123, Arcs([pt2,pc,pd]))) == 1
+    @test length(intersection_points(arcs123, Arcs([pt3,pc,pd]))) == 1
+    @test length(intersection_points(arcs123, Arcs([pb,pt1,pc]))) == 1
+    @test length(intersection_points(arcs123, Arcs([pb,pt2,pc]))) == 1
+    @test length(intersection_points(arcs123, Arcs([pb,pt3,pc]))) == 1
+    @test length(intersection_points(arcs123, Arcs([pa,pb,pt1]))) == 1
+    @test length(intersection_points(arcs123, Arcs([pa,pb,pt2]))) == 1
+    @test length(intersection_points(arcs123, Arcs([pa,pb,pt3]))) == 1
+    
+    @test length(intersection_points(arcs123, Arcs([pb,Point(10.0, 4.0),pd]))) == 1
+    @test length(intersection_points(arcs123, Arcs([pa,pb,pc]))) == 1
+
     @test !ison(p1ip1, Arc(p2ip1, p3ip1))
     @test ison(Point(0.0, 5.0), Arc(p1ip2, p2ip2))
     @test ison(Point(0.0, 5.0), Arcs([p1ip2, p2ip2, p3ip2]))
@@ -123,5 +172,30 @@
     @test isselfintersecting(poly3)
     @test isselfintersecting(arcs3)
     @test !isselfintersecting(Arcs([p1i, p2i, p3i, p4i, p5i]))
+
+    # https://www.onboardintelligence.com/GC for generating test (sphere)
+    pz1 = Point(50.0, 70.0)
+    pz2 = Point(50.0, -70.0)
+    azi = azimuth(pz1, pz2)
+    @test highest_latitude(pz1, azi) ≈ 73.9871 atol = 0.0001
+    @test lowest_latitude(pz1, azi) ≈ -73.9871 atol = 0.0001
+    @test highest_latitude_point(pz1, pz2).ϕ ≈ 73.9871 atol = 0.0001
+    @test lowest_latitude_point(pz1, pz2).ϕ ≈ 50.0 atol = 0.001
+    @test highest_latitude_point(pz1, Point(60.0, 70.0)).ϕ ≈ 60.0 atol = 0.001
+    @test highest_latitude_point(Point(60.0, 70.0), pz1).ϕ ≈ 60.0 atol = 0.001
+    @test lowest_latitude_point(pz1, Point(60.0, 70.0)).ϕ ≈ 50.0 atol = 0.001
+    @test lowest_latitude_point(Point(60.0, 70.0), pz1).ϕ ≈ 50.0 atol = 0.001
+    @test highest_latitude_point(pz1, Point(60.0, 80.0)).ϕ ≈ 60.0 atol = 0.0001
+
+    azi2 = azimuth(Point(30.0, 89.0), Point(50.0, -60.0))
+    @test highest_latitude_point(Point(30.0, 89.0), azi2).ϕ ≈ 73.2626 atol=0.0001
+    @test highest_latitude_point(Point(30.0, 89.0), azi2).λ ≈ 8.9986 atol=0.0001
+    @test lowest_latitude_point(Point(30.0, 89.0), azi2).λ ≈ -171.0014 atol=0.0001
+
+    @test highest_latitude_point(pz1, azi).ϕ ≈ 73.9871 atol = 0.0001
+    @test lowest_latitude_point(pz1, azi).ϕ ≈ -73.9871 atol = 0.0001
+    @test highest_latitude_point(pz1, azi).λ ≈ 0.0 atol = 0.0001
+
+    @test highest_latitude_point(Point(30.0, 90.0), 0.0).ϕ ≈ 90.0 atol = 0.1
 
 end

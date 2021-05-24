@@ -6,7 +6,7 @@ notifications:
 
 julia:
   - 1.0.5
-  - 1.4.1
+  - 1.6.1
   - nightly
 
 os:
@@ -27,7 +27,7 @@ jobs:
     - julia: nightly
   include:
     - stage: "Documentation"
-      julia: 1.4.1
+      julia: 1.6.1
       os: linux
       script:
         - julia --project=docs/ -e 'using Pkg;
@@ -43,9 +43,3 @@ after_success:
       Pkg.add("Coverage")
       using Coverage
       Codecov.submit(process_folder())'
-  - |
-    julia -e '
-      using Pkg
-      Pkg.add("Coverage")
-      using Coverage
-      Coveralls.submit(process_folder())'
