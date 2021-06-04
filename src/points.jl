@@ -6,6 +6,8 @@ point_cartesian, point_spherical
 """
     midpoint(point₁::Point, point₂::Point)
 
+    output: point::Point
+
 Return the half-way point `midpoint` [deg] on the great circle line between
 the positions `point₁` and `point₂` [deg] on a unit sphere.
 
@@ -23,22 +25,28 @@ end
 """
     midpoint(arc::Arc)
 
+    output: point::Point
+
 Return the half-way point `midpoint` [deg] on the great circle `arc`
 [deg] on a unit sphere.
 """
-midpoint(arc::Arc) = midpoint(arc.point₁,
-arc.point₂)
+midpoint(arc::Arc) = midpoint(arc.point₁, arc.point₂)
 
 """
     midpoint(arcs::Arcs)
+    
+    output: point::Point
 
 Return the half-way point `midpoint` [deg] on the great circle `arcs`
 [deg] on a unit sphere.
 """
 midpoint(arcs::Arcs) = intermediate_point(arcs, 0.5)
 
+
 """
     intermediate_point(point₁::Point, point₂::Point, fraction::Float64)
+
+    output: point::Point
 
 Return the `intermediate_point` [deg] at any `fraction` along the great circle
 line section between the two points `point₁` and `point₂` [deg]. The fraction
@@ -61,6 +69,8 @@ end
 
 """
     intermediate_point(arc::Arc, fraction::Float64)
+    
+    output: point::Point
 
 Return the `intermediate_point` [deg] at any `fraction` along the great circle
 `arc` [deg]. The fraction along the great circle `arc` is such
@@ -72,6 +82,8 @@ intermediate_point(arc.point₁, arc.point₂, fraction)
 
 """
     intermediate_point(arcs::Arcs, fraction::Float64)
+    
+    output: point::Point
 
 Return the `intermediate_point` [deg] at any `fraction` along the great circle
 `arcs` [deg]. The fraction along the great circle `arcs` is such
@@ -97,9 +109,12 @@ function intermediate_point(arcs::Arcs, fraction::Float64)
     return arcs.points[end]
 end
 
+
 """
     destination_point(start_point::Point, angular_distance::Float64,
     azimuth::Float64)
+
+    output: point::Point
 
 Given a `start_point` [deg], initial `azimuth` (clockwise from North) [deg],
 `angular_distance` [deg] calculate the position of the `destina­tion_point`
@@ -118,6 +133,8 @@ end
 
 """
     destination_point(line::Line, angular_distance::Float64)
+    
+    output: point::Point
 
 Given a line with a start_point and azimuth, calculate the `destina­tion_point`
 [deg] at the `angular_distance`.
@@ -125,9 +142,12 @@ Given a line with a start_point and azimuth, calculate the `destina­tion_point`
 destination_point(line::Line, angular_distance::Float64) =
 destination_point(line.point, angular_distance, line.azimuth)
 
+
 """
     intersection_point(point₁::Point, point₂::Point, azimuth₁₃::Float64,
     azimuth₂₃::Float64)
+    
+    output: point::Point
 
 Return the intersection point `point₃` [deg] of two great circle lines given
 by two start points [deg] `point₁` and `point₂` [deg] and two azimuths [deg]
@@ -176,6 +196,8 @@ end
 """
     intersection_point(line₁::Line, line₂::Line)
 
+    output: point::Point
+
 Return the intersection point `point₃` [deg] of two great circle lines 'line₁'
 and `line₂`.
 
@@ -186,6 +208,8 @@ line₂.point, line₁.azimuth, line₂.azimuth)
 
 """
     intersection_point(point₁::Point, point₂::Point, point₃::Point, point₄::Point)
+
+    output: point::Point
 
 Return the intersection `point` [deg] of two great circle line section given
 by two sets of two points: `point₁` and `point₂` [deg] and `point₃` and
@@ -231,6 +255,8 @@ end
 
 """
     intersection_point(arc₁::Arc, arc₂::Arc)
+    
+    output: point::Point
 
 Return the intersection `point` [deg] of two great circle line sections.
 
@@ -239,35 +265,25 @@ Under certain circumstances the results can be an ∞ or *ambiguous solution*.
 intersection_point(arc₁::Arc, arc₂::Arc) =
 intersection_point(arc₁.point₁, arc₁.point₂, arc₂.point₁, arc₂.point₂)
 
+
 """
     intersection_points(arcs₁::Arcs, arcs₂::Arcs)
+    
+    output: points::Vector of Point
 
 Return the intersection points [deg] of two line sections.
 """
 function intersection_points(arcs₁::Arcs, arcs₂::Arcs)
     lss₁_p₁ = arcs₁.points[1]
     inter_points = Vector{Point{Float64}}()
-    np1 = length(arcs₁.points)
-    np2 = length(arcs₂.points)
-    for (id12, lss₁_p₂) in enumerate(arcs₁.points[2:end])
+    for lss₁_p₂ in arcs₁.points[2:end]
         lss₂_p₁ = arcs₂.points[1]
         distances_section = Vector{Float64}()
         inter_points_section = Vector{Point{Float64}}()
-        for (id22, lss₂_p₂) in enumerate(arcs₂.points[2:end])
+        for lss₂_p₂ in arcs₂.points[2:end]
             intersection_pnt = intersection_point(lss₁_p₁, lss₁_p₂, lss₂_p₁, lss₂_p₂)
             if isinf(intersection_pnt.ϕ) || isnan(intersection_pnt.ϕ)
                 #
-            # elseif intersection_pnt == lss₁_p₂ || intersection_pnt == lss₂_p₂
-            #     if id12 == np1 - 1 && id22 == np2 - 1
-            #         append!(distances_section,
-            #         angular_distance(lss₁_p₁, intersection_pnt))
-            #         append!(inter_points_section, [intersection_pnt])
-            #     elseif (id12 == 1 && id22 == np2 - 1) || (id12 == np1 - 1 && id22 == 1)
-            #         append!(distances_section,
-            #         angular_distance(lss₁_p₁, intersection_pnt))
-            #         append!(inter_points_section, [intersection_pnt])
-            #     end
-            # else
             elseif intersection_pnt in inter_points_section || intersection_pnt in inter_points
                 #
             else
@@ -309,6 +325,8 @@ intersection_points(Arcs([arc.point₁, arc.point₂]), arcs)
 """
     intersection_points(arcs::Arcs, polygon::Polygon)
 
+    output: points::Vector of Point
+
 Return the intersection points [deg] of a `arcs` with a `polygon`.
 """
 intersection_points(arcs::Arcs, polygon::Polygon) =
@@ -320,6 +338,8 @@ intersection_points(Arcs([arc.point₁, arc.point₂]), polygon)
 """
     intersection_points(polygon₁::Polygon, polygon₂::Polygon)
 
+    output: points::Vector of Point
+
 Return the intersection points [deg] of two polygons.
 """
 intersection_points(polygon₁::Polygon, polygon₂::Polygon) =
@@ -327,6 +347,8 @@ intersection_points(Arcs(polygon₁.points), Arcs(polygon₂.points))
 
 """
     self_intersection_points(points::Vector{Point{Float64}})
+
+    output: points::Vector of Point
 
 Return the self intersection points [deg] of a set of points.
 """
@@ -358,11 +380,12 @@ function self_intersection_points(points::Vector{Point{Float64}})
     return inter_points
 end
 
+self_intersection_points(polygon::Polygon) = self_intersection_points(polygon.points)
+
 """
     isinside(point::Point, polygon::Polygon)
 
-Determine if the `point` is inside the `polygon`. The border is outside the
-    `polygon`.
+Determine if the `point` is inside the `polygon`. The border is outside the `polygon`.
 
 Source: M. Bevis and J.L. Chatelain, "Locating a point on a spherical surface
 relative to a spherical polygon" 1989
@@ -374,8 +397,7 @@ end
 """
     isinside(arc::Arc, polygon::Polygon)
 
-Determine if the `arc` is fully inside the `polygon`. The border is outside the
-    `polygon`.
+Determine if the `arc` is fully inside the `polygon`. The border is outside the `polygon`.
 """
 function isinside(arc::Arc, polygon::Polygon)
     return isinside(arc.point₁, polygon) && length(intersection_points(arc, polygon)) == 0
@@ -384,8 +406,7 @@ end
 """
     isinside(arcs::Arcs, polygon::Polygon)
 
-Determine if the `arcs` is fully inside the `polygon`. The border is outside the
-    `polygon`.
+Determine if the `arcs` is fully inside the `polygon`. The border is outside the `polygon`.
 """
 function isinside(arcs::Arcs, polygon::Polygon)
     return isinside(arcs.points[1], polygon) && length(intersection_points(arcs, polygon)) == 0
@@ -394,8 +415,7 @@ end
 """
     isinside(polygon₁::Polygon, polygon₂::Polygon)
 
-Determine if the `polygon₁` is fully inside the `polygon₂`. The border is outside the
-    `polygon₁`.
+Determine if the `polygon₁` is fully inside the `polygon₂`. The border is outside the `polygon₁`.
 """
 function isinside(polygon₁::Polygon, polygon₂::Polygon)
     return isinside(polygon₁.points[1], polygon₂) && length(intersection_points(polygon₁, polygon₂)) == 0
@@ -440,6 +460,8 @@ end
 """
     along_line_point(point₃::Point, line₁::Line)
 
+    output: point::Point
+
 The `along_line_point` from the start `point₁` [deg] to the closest
 point on the great circle line `line₁` to `point₃`.
 """
@@ -479,6 +501,8 @@ end
 """
     highest_latitude(point::Point, azimuth::Float64)
 
+    output: latitude [deg]
+
 The highest latitude a great circle reaches when starting in a point along the
 given azimuth [deg].
 
@@ -488,12 +512,24 @@ function highest_latitude(point₁::Point, azimuth₁₂::Float64)
     return acosd(abs(sind(azimuth₁₂)*cosd(point₁.ϕ)))
 end
 
+
+"""
+    lowest_latitude(point::Point, azimuth::Float64)
+
+    output: latitude [deg]
+
+The lowest latitude a great circle reaches when starting in a point along the
+given azimuth [deg].
+"""
 function lowest_latitude(point₁::Point, azimuth₁₂::Float64)
     return -highest_latitude(point₁, azimuth₁₂)
 end
 
+
 """
     highest_latitude_point(point::Point, azimuth::Float64)
+
+    output: point::Point
 
 The highest latitude point a great circle reaches when starting in point along the
 given azimuth [deg].
@@ -508,15 +544,28 @@ function highest_latitude_point(point₁::Point, azimuth₁₂::Float64)
     return destination_point(point₁, p, azimuth₁₂)
 end
 
+
+"""
+    lowest_latitude_point(point::Point, azimuth::Float64)
+
+    output: point::Point
+
+The lowest latitude point a great circle reaches when starting in point along the
+given azimuth [deg].
+
+Source: https://www.edwilliams.org/avform147.htm#XTE
+"""
 function lowest_latitude_point(point₁::Point, azimuth₁₂::Float64)
     hlp = highest_latitude_point(point₁, azimuth₁₂)
     return Point(-hlp.ϕ, normalize(hlp.λ+180.0, -180.0, 180.0))
 end
-    
-#TBD Test scenarios for highest_latitude_pointhlp two points
 
+
+#TBD Test scenarios for highest_latitude_point
 """
     highest_latitude_point(point₁::Point, point₂::Point)
+
+    output: point::Point
 
 The highest latitude point a great circle reaches when starting in point₁ 
 towards point₂. The point must be between point₁ and point₂.
@@ -545,6 +594,16 @@ function highest_latitude_point(point₁::Point, point₂::Point)
     end
 end
 
+"""
+    lowest_latitude_point(point₁::Point, point₂::Point)
+
+    output: point::Point
+
+The lowest latitude point a great circle reaches when starting in point₁ 
+towards point₂. The point must be between point₁ and point₂.
+
+Source: https://www.edwilliams.org/avform147.htm#XTE
+"""
 function lowest_latitude_point(point₁::Point, point₂::Point)
     azimuth₁₂ = azimuth(point₁, point₂)
     llp = lowest_latitude_point(point₁, azimuth₁₂)

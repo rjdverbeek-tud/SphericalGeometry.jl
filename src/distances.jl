@@ -133,8 +133,8 @@ function angular_distance(point₃::Point, point₁::Point, point₂::Point, tol
     angular_distance₂₃ = angular_distance(point₂, point₃)
     azimuth₁₂ = azimuth(point₁, point₂)
     angular_distance_line3 = angular_distance(point₃, point₁, azimuth₁₂)
-    along_line_angular_dist = along_line_angular_distance(angular_distance₁₃,
-    angular_distance_line3)
+    # along_line_angular_dist = along_line_angular_distance(angular_distance₁₃,
+    # angular_distance_line3)
     along_line_pnt_3a = along_line_point(point₃, Line(point₁, azimuth₁₂))
     if abs(angular_distance(along_line_pnt_3a, point₁) +
         angular_distance(along_line_pnt_3a, point₂) -
@@ -174,8 +174,7 @@ an `arcs`.
 
 The `angular_distance` does not change sign when being left or right of the arc.
 """
-angular_distance(point₃::Point, arcs::Arcs) = angular_distance(point₃,
-arcs.points)
+angular_distance(point₃::Point, arcs::Arcs) = angular_distance(point₃, arcs.points)
 
 """
     angular_distance(point₃::Point, polygon::Polygon)
@@ -195,8 +194,7 @@ Return the `angular_distance` [deg] from point₃ [deg] to the closest point on 
 great circle line section starting in `point₁` [deg] and ending in `point₂` [deg].
 The great circle line section does not continue around the unit sphere.
 """
-angular_distance(point₃::Point, arc₁₂::Arc) =
-angular_distance(point₃, arc₁₂.point₁, arc₁₂.point₂)
+angular_distance(point₃::Point, arc₁₂::Arc) = angular_distance(point₃, arc₁₂.point₁, arc₁₂.point₂)
 
 """
     along_line_angular_distance(angular_distance₁₃::Float64,

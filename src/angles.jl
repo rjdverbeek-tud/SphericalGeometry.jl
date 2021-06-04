@@ -3,6 +3,8 @@ export azimuth, final_azimuth, spherical_angle, spherical_excess
 """
     azimuth(point₁::Point, point₂::Point)
 
+    output: angle [deg]
+
 Return the initial `azimuth` [deg], measured clockwise from the north direction,
 of the great circle line between the positions `point₁` and `point₂` [deg] on a
 unit sphere.
@@ -18,14 +20,18 @@ end
 """
     azimuth(line::Line)
 
+    output: angle [deg]
+
 Return the initial `azimuth` [deg], measured clockwise from the north direction,
 of the line on a unit sphere.
 """
-azimuth(arc::Arc) =
-azimuth(arc.point₁, arc.point₂)
+azimuth(arc::Arc) = azimuth(arc.point₁, arc.point₂)
+
 
 """
     final_azimuth(point₁::Point, point₂::Point)
+
+    output: angle [deg]
 
 Return the final `azimuth` [deg], measured clockwise from the north direction,
 of the great circle line between the positions `point₁` and `point₂` [deg] on a
@@ -40,13 +46,17 @@ end
 """
     final_azimuth(line::Line)
 
+    output: angle [deg]
+
 Return the `final_azimuth` [deg] of the line on a unit sphere.
 """
-final_azimuth(arc::Arc) =
-final_azimuth(arc.point₁, arc.point₂)
+final_azimuth(arc::Arc) = final_azimuth(arc.point₁, arc.point₂)
+
 
 """
     spherical_angle(angular_distance₁₂::Float64, angular_distance₂₃::Float64, angular_distance₁₃::Float64)
+
+    output: angle [deg]
 
 Return the 'spherical_angle' [deg] of angle₁₂₃ given the angular distances [deg] between point₁ and point₂,
 point₂ and point₃, and point₁ and point₃.
@@ -68,6 +78,8 @@ end
 """
     spherical_angle(point₁::Point, point₂::Point, point₃::Point)
 
+    output: angle [deg]
+
 Return the 'spherical_angle' [deg] of angle₁₂₃ given the triangle point₁ - point₂ - point₃
 
 Source: en.wikipedia.org/wiki/Spherical_trigonometry
@@ -75,16 +87,19 @@ Source: en.wikipedia.org/wiki/Spherical_trigonometry
 spherical_angle(point₁::Point, point₂::Point, point₃::Point, tolerance::Float64=tolerance_deg) =
 spherical_angle(angular_distance(point₁, point₂), angular_distance(point₂, point₃), angular_distance(point₁, point₃))
 
+
 """
     spherical_excess(angular_distance₁₂::Float64, angular_distance₂₃::Float64, angular_distance₁₃::Float64)
+
+    output: angle [deg]
 
 Return the 'spherical_excess' [deg] of the spherical triangle 123 given the angular distances between the
 points point₁, point₂, and point₃
 
 Source: mathworld.wolfram.com/SphericalExcess.html
 """
-function spherical_excess(angular_distance₁₂::Float64, angular_distance₂₃::Float64, angular_distance₁₃::Float64,
-    tolerance::Float64=tolerance_deg)
+function spherical_excess(angular_distance₁₂::Float64, angular_distance₂₃::Float64, 
+    angular_distance₁₃::Float64, tolerance::Float64=tolerance_deg)
     A = spherical_angle(angular_distance₁₂, angular_distance₂₃, angular_distance₁₃)
     B = spherical_angle(angular_distance₁₃, angular_distance₁₂, angular_distance₂₃)
     C = spherical_angle(angular_distance₂₃, angular_distance₁₃, angular_distance₁₂)
@@ -94,9 +109,12 @@ end
 """
     spherical_excess(point₁::Point, point₂::Point, point₃::Point)
 
+    output: angle [deg]
+
 Return the 'spherical_excess' [deg] of the spherical triangle 123 given the points point₁ - point₂ - point₃
 
 Source: mathworld.wolfram.com/SphericalExcess.html
 """
 spherical_excess(point₁::Point, point₂::Point, point₃::Point) =
-spherical_excess(angular_distance(point₁, point₂), angular_distance(point₂, point₃), angular_distance(point₁, point₃))
+spherical_excess(angular_distance(point₁, point₂), angular_distance(point₂, point₃), 
+angular_distance(point₁, point₃))
