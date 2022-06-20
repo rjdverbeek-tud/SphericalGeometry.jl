@@ -1,14 +1,14 @@
 name = "SphericalGeometry"
 uuid = "b58e7a8d-b3e8-4a5d-bea9-e6440cab77fd"
 authors = ["René Verbeek"]
-version = "1.0.0"
+version = "0.1.2"
 
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [compat]
-julia = "1.6.1"
+julia = "1.6.6"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
